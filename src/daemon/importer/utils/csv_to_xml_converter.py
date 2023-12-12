@@ -95,10 +95,10 @@ class CSVtoXMLConverter:
         for entry in entries.values():
             entries_el.append(entry.to_xml())
 
-        root_el.append(players_el)
-        root_el.append(teams_el)
         root_el.append(countries_el)
         root_el.append(colleges_el)
+        root_el.append(teams_el)
+        root_el.append(players_el)
         root_el.append(entries_el)
 
         return root_el
