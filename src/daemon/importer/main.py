@@ -20,8 +20,11 @@ def generate_unique_file_name(directory):
 
 def convert_csv_to_xml(in_path, out_path):
     converter = CSVtoXMLConverter(in_path)
-    file = open(out_path, "w")
-    file.write(converter.xml_to_str())
+    try:
+        file = open(out_path, "w")
+        file.write(converter.xml_to_str())
+    except Exception as e:
+        exit(e)
 
 
 class CSVHandler(FileSystemEventHandler):

@@ -72,7 +72,7 @@ class CSVtoXMLConverter:
             )
         )
 
-        # generate the final xml
+        # generate the final XML
         root_el = ET.Element("NBAData")
 
         players_el = ET.Element("players")
