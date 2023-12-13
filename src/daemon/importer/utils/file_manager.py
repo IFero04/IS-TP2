@@ -1,48 +1,43 @@
-from utils.db import PostgresDB
-
-def store_converted(cursor, src, file_size, dst):
+def store_converted(db, src, file_size):
     try:
         query = '''
-            INSERT INTO converted_documents(src, file_size, dst)
-            VALUES (%s, %s, %s)
-            ON CONFLICT DO NOTHING
-            RETURNING created_on, updated_on
+            INSERT INTO converted_documents(src, file_size)
+            VALUES (%s, %s)
+            ON CONFLICT (src) DO NOTHING
+            RETURNING id, created_on, updated_on
         '''
 
-        parameters = (src, file_size, dst, )
+        parameters = (src, file_size, )
+        response = db.execute_query(query=query, parameters=parameters,multi=False)
 
-        cursor.execute(query, parameters)
-        response = cursor.fetchone()
-
-        if response:
-            created_on, updated_on = response
+        if response is not None:
+            csv_id, created_on, updated_on = response
 
             if created_on == updated_on:
-                return "stored"
+                return "stored", csv_id
             else:
-                return "updated"
+                return "updated", csv_id
 
-        return 'not stored/updated'
+        return None, None
 
     except Exception as e:
         raise Exception(f'Error Storing Converted: {e}')
 
-def import_xml(cursor, file_name, xml):
+def import_xml(db, file_name, xml, csv_id):
     try:
         query = '''
-            INSERT INTO imported_documents(file_name, xml) 
-            VALUES (%s, %s)
+            INSERT INTO imported_documents(file_name, xml, csv_id) 
+            VALUES (%s, %s, %s)
             ON CONFLICT (file_name) DO UPDATE 
             SET xml = EXCLUDED.xml, updated_on = CURRENT_TIMESTAMP
             RETURNING created_on, updated_on, deleted_on
         '''
 
-        parameters = (file_name, xml, )
+        parameters = (file_name, xml, csv_id,)
 
-        cursor.execute(query, parameters)
-        response = cursor.fetchone()
+        response = db.execute_query(query=query, parameters=parameters,multi=False)
 
-        if response:
+        if response is not None:
             created_on, updated_on, deleted_on = response
 
             if created_on == updated_on:
@@ -50,23 +45,21 @@ def import_xml(cursor, file_name, xml):
             else:
                 return "updated"
 
-        return 'not stored/updated'
+        return None
 
     except Exception as e:
         raise Exception(f'Error Storing XML: {e}')
 
-def list_converted():
+def list_converted(db):
     try:
         query = '''
             SELECT src
             FROM converted_documents
         '''
 
-        db = PostgresDB('db-xml', '5432', 'is', 'is', 'is')
+        response = db.execute_query(query=query, multi=True)
 
-        response = db.execute_query(query)
-
-        if response:
+        if response is not None:
             data = []
             for item in response:
                 file_src = item[0]

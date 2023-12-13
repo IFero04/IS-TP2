@@ -3,15 +3,14 @@ from csv import DictReader
 
 class CSVReader:
 
-    def __init__(self, path, delimiter=','):
-        self._path = path
+    def __init__(self, file, delimiter=','):
+        self._file = file
         self._delimiter = delimiter
 
     def loop(self):
-        with open(self._path, 'r') as file:
-            for row in DictReader(file, delimiter=self._delimiter):
-                yield row
-        file.close()
+        self._file.seek(0)
+        for row in DictReader(self._file, delimiter=self._delimiter):
+            yield row
 
     def read_entities(self, attrs: list, builder, after_create=None, is_valid=(lambda _: True)):
         entities = {}
