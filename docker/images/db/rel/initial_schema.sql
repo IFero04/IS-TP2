@@ -5,7 +5,8 @@ CREATE TABLE teams (
 
 CREATE TABLE countries (
     id INTEGER PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
+    name VARCHAR(100) NOT NULL,
+    cordinates GEOGRAPHY
 );
 
 CREATE TABLE colleges (
