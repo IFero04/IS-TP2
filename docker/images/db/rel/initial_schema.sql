@@ -1,44 +1,44 @@
 CREATE TABLE teams (
-    ID INTEGER PRIMARY KEY,
-    Abbreviation VARCHAR(4) NOT NULL
+    id INTEGER PRIMARY KEY,
+    abbreviation VARCHAR(4) NOT NULL
 );
 
 CREATE TABLE countries (
-    ID INTEGER PRIMARY KEY,
-    Name VARCHAR(100) NOT NULL
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE colleges (
-    ID INTEGER PRIMARY KEY,
-    Name VARCHAR(100) NOT NULL
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE players (
-    ID INTEGER PRIMARY KEY,
-    Name VARCHAR(100) NOT NULL,
-    Age INTEGER NOT NULL,
-    Height FLOAT NOT NULL,
-    Weight FLOAT NOT NULL,
-    DraftYear INT NOT NULL,
-    DraftRound INT NOT NULL,
-    DraftNumber INT NOT NULL,
-    CollegeRef INTEGER REFERENCES Colleges(ID),
-    CountryRef INTEGER REFERENCES Countries(ID) NOT NULL
+    id INTEGER PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    age INTEGER NOT NULL,
+    height FLOAT NOT NULL,
+    weight FLOAT NOT NULL,
+    draftYear INT NOT NULL,
+    draftRound INT NOT NULL,
+    draftNumber INT NOT NULL,
+    college_ref INTEGER REFERENCES colleges(id),
+    country_ref INTEGER REFERENCES countries(id) NOT NULL
 );
 
 CREATE TABLE entries (
-    ID INTEGER PRIMARY KEY,
-    Season VARCHAR(8) NOT NULL,
-    GP INTEGER NOT NULL,
-    PTS FLOAT NOT NULL,
-    REB FLOAT NOT NULL,
-    AST FLOAT NOT NULL,
-    NetRating FLOAT NOT NULL,
-    OREBPct FLOAT NOT NULL,
-    DREBPct FLOAT NOT NULL,
-    USGPct FLOAT NOT NULL,
-    TSPct FLOAT NOT NULL,
-    ASTPct FLOAT NOT NULL,
-    PlayerRef INTEGER REFERENCES Players(ID) NOT NULL,
-    TeamRef INTEGER REFERENCES Teams(ID) NOT NULL
+    id INTEGER PRIMARY KEY,
+    season VARCHAR(8) NOT NULL,
+    gp INTEGER NOT NULL,
+    pts FLOAT NOT NULL,
+    reb FLOAT NOT NULL,
+    ast FLOAT NOT NULL,
+    net_rating FLOAT NOT NULL,
+    oreb_pct FLOAT NOT NULL,
+    dreb_pct FLOAT NOT NULL,
+    usg_pct FLOAT NOT NULL,
+    ts_pct FLOAT NOT NULL,
+    ast_pct FLOAT NOT NULL,
+    player_ref INTEGER REFERENCES players(id) NOT NULL,
+    team_ref INTEGER REFERENCES teams(id) NOT NULL
 );

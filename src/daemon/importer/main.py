@@ -20,22 +20,25 @@ def get_csv_files_in_input_folder():
     return [os.path.join(dp, f) for dp, dn, filenames in os.walk(CSV_INPUT_PATH) for f in filenames if
             os.path.splitext(f)[1] == '.csv']
 
+
 def generate_unique_file_name(directory):
     file_name = str(uuid.uuid4())
     file_path = f"{directory}/{file_name}.xml"
 
     return file_path, file_name
 
+
 def convert_csv_to_xml(csv, out_path):
     converter = CSVtoXMLConverter(csv)
     try:
         xml_str = converter.xml_to_str()
-        #with open(out_path, "w") as file:
-            #file.write(xml_str)
+        # with open(out_path, "w") as file:
+        # file.write(xml_str)
 
         return xml_str
     except Exception as e:
         exit(e)
+
 
 def divide_csv(csv_path, csv_parts):
     original_data = pandas.read_csv(csv_path)
