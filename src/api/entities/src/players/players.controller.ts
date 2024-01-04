@@ -1,0 +1,141 @@
+import { Controller, Get, Post, Delete, Put, Req, Res } from '@nestjs/common';
+import { Request, Response } from 'express';
+import { PlayersService } from './players.service';
+import { CreatePlayerDto } from './dto/createPlayer.dto';
+import { UpdatePlayerDto } from './dto/updatePlayer.dto';
+
+
+@Controller('api/players')
+export class PlayersController {
+    constructor(private readonly playersService: PlayersService) {}
+
+    // Create
+    @Post()
+    async createPlayer(@Req() request: Request, @Res() response: Response): Promise<any> {
+        try {
+            const player: CreatePlayerDto = {
+                name: request.body.name,
+                age: request.body.age,
+                height: request.body.height,
+                weight: request.body.weight,
+                draftyear: request.body.draftyear,
+                draftround: request.body.draftround,
+                draftnumber: request.body.draftnumber,
+                college_ref: request.body.college_ref,
+                country_ref: request.body.country_ref,
+            };
+                
+            const result = await this.playersService.createPlayer(player);
+
+            return response.status(200).json({
+                status: "OK!",
+                message: 'Country created successfully!',
+                result: result,
+            });
+        }catch(err){
+            return response.status(500).json({
+                status: "ERROR!",
+                message: 'Country not created!',
+                result: err,
+            });
+        }
+    }
+
+
+    // Read
+    @Get()
+    async readAllPlayers(@Req() request: Request, @Res() response: Response): Promise<any> {
+        try {
+            const result = await this.playersService.readAllPlayers();
+
+            return response.status(200).json({
+                status: "OK!",
+                message: 'Countries read successfully!',
+                result: result,
+            });
+        }catch(err){
+            return response.status(500).json({
+                status: "ERROR!",
+                message: 'Countries not read!',
+                result: err,
+            });
+        }
+    }
+
+    @Get(':id')
+    async readPlayerById(@Req() request: Request, @Res() response: Response): Promise<any> {
+        try {
+            const id = Number(request.params.id);
+
+            const result = await this.playersService.readPlayerById(id);
+
+            return response.status(200).json({
+                status: "OK!",
+                message: 'Country read successfully!',
+                result: result,
+            });
+        }catch(err){
+            return response.status(500).json({
+                status: "ERROR!",
+                message: 'Country not read!',
+                result: err,
+            });
+        }
+    }
+
+    // Update
+    @Put(':id')
+    async updatePlayerById(@Req() request: Request, @Res() response: Response): Promise<any> {
+        try {
+            const id = Number(request.params.id);
+
+            const player: UpdatePlayerDto = {
+                name: request.body.name,
+                age: request.body.age,
+                height: request.body.height,
+                weight: request.body.weight,
+                draftyear: request.body.draftyear,
+                draftround: request.body.draftround,
+                draftnumber: request.body.draftnumber,
+                college_ref: request.body.college_ref,
+                country_ref: request.body.country_ref,
+            };
+
+            const result = await this.playersService.updatePlayer(id, player);
+
+            return response.status(200).json({
+                status: "OK!",
+                message: 'Country updated successfully!',
+                result: result,
+            });
+        }catch(err){
+            return response.status(500).json({
+                status: "ERROR!",
+                message: 'Country not updated!',
+                result: err,
+            });
+        }
+    }
+
+    // Delete
+    @Delete(':id')
+    async deletePlayerById(@Req() request: Request, @Res() response: Response): Promise<any> {
+        try {
+            const id = Number(request.params.id);
+
+            const result = await this.playersService.deletePlayer(id);
+
+            return response.status(200).json({
+                status: "OK!",
+                message: 'Country deleted successfully!',
+                result: result,
+            });
+        }catch(err){
+            return response.status(500).json({
+                status: "ERROR!",
+                message: 'Country not deleted!',
+                result: err,
+            });
+        }
+    }
+}

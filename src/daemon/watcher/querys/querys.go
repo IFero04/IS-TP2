@@ -6,6 +6,7 @@ import (
 
 	"database/sql"
 	"log"
+	"fmt"
 )
 
 
@@ -30,4 +31,15 @@ func GetDocumentToMigrate() (*types.Document, error) {
 		Name:     file_name,
 		Migrated: migrated,
 	}, nil
+}
+
+
+func SetMigrated(id int) error {
+	query := fmt.Sprintf("UPDATE imported_documents SET migrated = true WHERE id = %d", id)
+	_, err := db.DB.Exec(query)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

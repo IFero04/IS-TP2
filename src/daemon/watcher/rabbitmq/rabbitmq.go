@@ -43,10 +43,34 @@ func AddToQueue(id int) error {
 	}
 	defer channel.Close()
 
-	log.Println("Adding to queue:", id)
+	queue, err := channel.QueueDeclare(
+		"migrate",
+		false,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
 
-	// Add your logic for adding to the queue here
+	err = channel.Publish(
+		"",
+		queue.Name,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body: []byte(fmt.Sprintf("%d", id)),
+		},
+	)
+	if err != nil {
+		return err
+	}
+	
+	fmt.Println("Queue status:", queue)
+	fmt.Println("Successfully published message")
 
-	// Return nil to indicate success
 	return nil
 }

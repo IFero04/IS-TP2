@@ -1,21 +1,21 @@
 CREATE TABLE teams (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     abbreviation VARCHAR(4) NOT NULL
 );
 
 CREATE TABLE countries (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    cordinates GEOGRAPHY
+    coordinates GEOMETRY
 );
 
 CREATE TABLE colleges (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE players (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     age INTEGER NOT NULL,
     height FLOAT NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE players (
 );
 
 CREATE TABLE entries (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     season VARCHAR(8) NOT NULL,
     gp INTEGER NOT NULL,
     pts FLOAT NOT NULL,
