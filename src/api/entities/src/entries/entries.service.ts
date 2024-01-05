@@ -1,11 +1,50 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
+import { CreateEntryDto } from './dto/createEntry.dto';
+import { UpdateEntryDto } from './dto/updateEntry.dto';
+
 
 @Injectable()
 export class EntriesService {
     private prisma = new PrismaClient();
 
-    async findAll(): Promise<any[]> {
-        return this.prisma.entries.findMany();
+    // Create
+    async createEntry(entry: CreateEntryDto) {
+        return this.prisma.entries.create({
+            data: entry,  
+        });
+    }
+
+    // Read
+    async readAllEntries() {
+        return this.prisma.entries.findMany({
+            orderBy: {
+                id: 'asc'
+            }
+        });
+    }
+
+    async readEntryById(id: number) {
+        return this.prisma.entries.findUnique({
+            where: { id: Number(id) },
+        });
+    }
+    
+    // Update
+    async updateEntry(id: number, entry: UpdateEntryDto) {
+        return this.prisma.entries.update({
+            where: { id: Number(id) },
+            data: {
+                ...entry,
+                id: undefined,
+            }
+        });
+    }
+
+    // Delete
+    async deleteEntry(id: number) {
+        return this.prisma.entries.delete({
+            where: { id: Number(id) },
+        });
     }
 }

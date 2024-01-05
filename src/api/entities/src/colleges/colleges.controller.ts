@@ -12,7 +12,7 @@ export class CollegesController {
 
     // Create
     @Post()
-    async createCountry(@Req() request: Request, @Res() response: Response): Promise<any> {
+    async createCollege(@Req() request: Request, @Res() response: Response): Promise<any> {
         try{
             const college: CreateCollegeDto = {
                 name: request.body.name,
@@ -22,13 +22,13 @@ export class CollegesController {
 
             return response.status(200).json({
                 status: "OK!",
-                message: 'Country created successfully!',
+                message: 'College created successfully!',
                 result: result,
             });
         }catch(err){
             return response.status(500).json({
                 status: "ERROR!",
-                message: 'Country not created!',
+                message: 'College not created!',
                 result: err,
             });
         }
@@ -36,39 +36,39 @@ export class CollegesController {
 
     // Read
     @Get()
-    async readAllCountries(@Res() response: Response): Promise<any> {
+    async readAllColleges(@Res() response: Response): Promise<any> {
         try{
             const result = await this.collegesService.readAllColleges();
             
             return response.status(200).json({
                 status: "OK!",
-                message: 'Countries retrieved successfully!',
+                message: 'Colleges retrieved successfully!',
                 result: result,
             });
         }catch(err){
             return response.status(500).json({
                 status: "ERROR!",
-                message: 'Countries not retrieved!',
+                message: 'Colleges not retrieved!',
                 result: err,
             });
         }
     }
 
     @Get(':id')
-    async readCountryById(@Req() request: Request, @Res() response: Response): Promise<any> {
+    async readCollegeById(@Req() request: Request, @Res() response: Response): Promise<any> {
         try{
             const id = Number(request.params.id);
             const result = await this.collegesService.readCollegeById(id);
             
             return response.status(200).json({
                 status: "OK!",
-                message: 'Country retrieved successfully!',
+                message: 'College retrieved successfully!',
                 result: result,
             });
         }catch(err){
             return response.status(500).json({
                 status: "ERROR!",
-                message: 'Country not retrieved!',
+                message: 'College not retrieved!',
                 result: err,
             });
         }
@@ -76,7 +76,7 @@ export class CollegesController {
 
     // Update
     @Put(':id')
-    async updateCountry(@Req() request: Request, @Res() response: Response): Promise<any> {
+    async updateCollege(@Req() request: Request, @Res() response: Response): Promise<any> {
         try{
             const id = Number(request.params.id);
             const college: UpdateCollegeDto = {
@@ -87,13 +87,13 @@ export class CollegesController {
 
             return response.status(200).json({
                 status: "OK!",
-                message: 'Country updated successfully!',
+                message: 'College updated successfully!',
                 result: result,
             });
         }catch(err){
             return response.status(500).json({
                 status: "ERROR!",
-                message: 'Country not updated!',
+                message: 'College not updated!',
                 result: err,
             });
         }
@@ -101,7 +101,7 @@ export class CollegesController {
 
     // Delete
     @Delete(':id')
-    async deleteCountry(@Req() request: Request, @Res() response: Response): Promise<any> {
+    async deleteCollege(@Req() request: Request, @Res() response: Response): Promise<any> {
         try{
             const id = Number(request.params.id);
 
@@ -109,13 +109,13 @@ export class CollegesController {
 
             return response.status(200).json({
                 status: "OK!",
-                message: 'Country deleted successfully!',
+                message: 'College deleted successfully!',
                 result: result,
             });
         }catch(err){
             return response.status(500).json({
                 status: "ERROR!",
-                message: 'Country not deleted!',
+                message: 'College not deleted!',
                 result: err,
             });
         }

@@ -29,13 +29,13 @@ export class PlayersController {
 
             return response.status(200).json({
                 status: "OK!",
-                message: 'Country created successfully!',
+                message: 'Player created successfully!',
                 result: result,
             });
         }catch(err){
             return response.status(500).json({
                 status: "ERROR!",
-                message: 'Country not created!',
+                message: 'Player not created!',
                 result: err,
             });
         }
@@ -50,13 +50,13 @@ export class PlayersController {
 
             return response.status(200).json({
                 status: "OK!",
-                message: 'Countries read successfully!',
+                message: 'Players read successfully!',
                 result: result,
             });
         }catch(err){
             return response.status(500).json({
                 status: "ERROR!",
-                message: 'Countries not read!',
+                message: 'Players not read!',
                 result: err,
             });
         }
@@ -71,13 +71,13 @@ export class PlayersController {
 
             return response.status(200).json({
                 status: "OK!",
-                message: 'Country read successfully!',
+                message: 'Player read successfully!',
                 result: result,
             });
         }catch(err){
             return response.status(500).json({
                 status: "ERROR!",
-                message: 'Country not read!',
+                message: 'Player not read!',
                 result: err,
             });
         }
@@ -105,13 +105,13 @@ export class PlayersController {
 
             return response.status(200).json({
                 status: "OK!",
-                message: 'Country updated successfully!',
+                message: 'Player updated successfully!',
                 result: result,
             });
         }catch(err){
             return response.status(500).json({
                 status: "ERROR!",
-                message: 'Country not updated!',
+                message: 'Player not updated!',
                 result: err,
             });
         }
@@ -127,13 +127,13 @@ export class PlayersController {
 
             return response.status(200).json({
                 status: "OK!",
-                message: 'Country deleted successfully!',
+                message: 'Player deleted successfully!',
                 result: result,
             });
         }catch(err){
             return response.status(500).json({
                 status: "ERROR!",
-                message: 'Country not deleted!',
+                message: 'Player not deleted!',
                 result: err,
             });
         }
