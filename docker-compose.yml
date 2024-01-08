@@ -68,6 +68,7 @@ services:
       POLLING_FREQ: ${POLLING_FREQ}
     depends_on:
       - db-xml
+      - api-entities
       - broker
 
   # Container that automatically migrates data from db-xml to db-rel
@@ -213,6 +214,9 @@ services:
   broker:
     container_name: rabbitmq
     image: "rabbitmq:3.12.9-management-alpine"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - rabbitmq-data:/var/log/rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: "$RABBITMQ_DEFAULT_USER"
       RABBITMQ_DEFAULT_PASS: "$RABBITMQ_DEFAULT_PASS"
@@ -229,3 +233,4 @@ services:
 volumes:
   xml-data:
   rel-data:
+  rabbitmq-data:

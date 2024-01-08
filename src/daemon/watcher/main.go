@@ -1,27 +1,52 @@
 package main
 
 import (
+	"watcher/types"
 	"watcher/db"
 	"watcher/querys"
-	"watcher/types"
 	"watcher/rabbitmq"
+
 	"log"	
 	"time"
+	"fmt"
 )
 
+func _loadDB() {
+	log.Println("Loading DataBase ...")
+	for {
+		err := db.Init()
+		if err != nil {
+			log.Println(err)
+			log.Println("Retrying in 30 seconds ...")
+			time.Sleep(30 * time.Second)
+		} else {
+			log.Println("DataBase loaded.")
+			break	
+		}
+	}
+}
+
+func _loadRabbitMQ() {
+	log.Println("Loading RabbitMQ ...")
+	for {
+		err := rabbitmq.Init()
+		if err != nil {
+			log.Println(err)
+			log.Println("Retrying in 30 seconds ...")
+			time.Sleep(30 * time.Second)
+		} else {
+			log.Println("RabbitMQ loaded.")
+			break	
+		}
+	}
+}
 
 func main() {
-	err := db.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
+	_loadDB()
 
-	err = rabbitmq.Init()
-	if err != nil {
-		log.Fatal(err)
-	}
+	_loadRabbitMQ()
 	
-	ticker := time.NewTicker(5 * time.Second) 
+	ticker := time.NewTicker(30 * time.Second) 
 	defer ticker.Stop()
 
 	for {
@@ -29,21 +54,27 @@ func main() {
 		case <-ticker.C:
 			document , err := querys.GetDocumentToMigrate()
 			if err != nil {
-				log.Println("Error checking for new entry:", err)
+				log.Fatal("Error checking for new entry:", err)
 			} else {
 				if document != nil {
 					if types.ValidateDocument(document){
 						log.Printf("New entry found: ID=%d, Name=%s\n", document.ID, document.Name)
-						err := rabbitmq.AddToQueue(document.ID)
+
+						messageBody := fmt.Sprintf("Document|%d", document.ID)
+						err = rabbitmq.AddToQueue("migrate", messageBody)
 						if err != nil {
-							log.Println("Error adding to queue:", err)
-						} else{
+							log.Fatal("Error adding to queue:", err)
+						} else {
 							err := querys.SetMigrated(document.ID)
 							if err != nil {
-								log.Println("Error setting migrated:", err)
+								log.Fatal("Error setting migrated:", err)
+							} else {
+								log.Println("Added to queue.")
 							}
 						}
 					}
+				} else {
+					log.Println("No new entry found.")
 				}
 			}
 		}

@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { CountriesService } from './countries.service';
 import { CreateCountryDto } from './dto/createCountry.dto'; 
 import { UpdateCountryDto } from './dto/updateCountry.dto';
+import { get } from 'http';
 
 
 
@@ -60,6 +61,27 @@ export class CountriesController {
             const id = Number(request.params.id);
 
             const result = await this.countriesService.readCountryById(id);
+
+            return response.status(200).json({
+                status: "OK!",
+                message: 'Country retrieved successfully!',
+                result: result,
+            });
+        }catch(err){
+            return response.status(500).json({
+                status: "ERROR!",
+                message: 'Country not retrieved!',
+                result: err,
+            });
+        }
+    }
+
+    @Get('/name/:name')
+    async readCountryByName(@Req() request: Request, @Res() response: Response): Promise<any> {
+        try{
+            const name = String(request.params.name);
+
+            const result = await this.countriesService.readCountryByName(name);
 
             return response.status(200).json({
                 status: "OK!",

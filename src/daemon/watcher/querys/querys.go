@@ -5,7 +5,6 @@ import (
 	"watcher/types"
 
 	"database/sql"
-	"log"
 	"fmt"
 )
 
@@ -20,7 +19,6 @@ func GetDocumentToMigrate() (*types.Document, error) {
 
 	err := row.Scan(&id, &file_name, &migrated)
 	if err == sql.ErrNoRows {
-		log.Println("No new entry found.")
 		return nil, nil
 	} else if err != nil {
 		return nil, err

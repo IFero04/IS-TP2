@@ -2,7 +2,6 @@ package rabbitmq
 
 import (
 	"fmt"
-	"log"
 	"github.com/streadway/amqp"
 )
 
@@ -35,42 +34,39 @@ func Init() error {
 	return nil
 }
 
+func AddToQueue(queueName string, messageBody string) error {
+    channel, err := connection.Channel()
+    if err != nil {
+        return err
+    }
+    defer channel.Close()
 
-func AddToQueue(id int) error {
-	channel, err := connection.Channel()
-	if err != nil {
-		log.Println(err)
-	}
-	defer channel.Close()
+    queue, err := channel.QueueDeclare(
+        queueName,
+        false,
+        false,
+        false,
+        false,
+        nil, 
+    )
+    if err != nil {
+        return err
+    }
 
-	queue, err := channel.QueueDeclare(
-		"migrate",
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		return err
-	}
+    err = channel.Publish(
+        "",
+        queue.Name,
+        false,
+        false,
+        amqp.Publishing{
+            ContentType: 	"text/plain",
+            Body:        	[]byte(messageBody),
+			DeliveryMode:	amqp.Persistent,
+        },
+    )
+    if err != nil {
+        return err
+    }
 
-	err = channel.Publish(
-		"",
-		queue.Name,
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body: []byte(fmt.Sprintf("%d", id)),
-		},
-	)
-	if err != nil {
-		return err
-	}
-	
-	fmt.Println("Queue status:", queue)
-	fmt.Println("Successfully published message")
-
-	return nil
+    return nil
 }

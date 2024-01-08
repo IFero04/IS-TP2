@@ -1,17 +1,17 @@
 CREATE TABLE teams (
     id SERIAL PRIMARY KEY,
-    abbreviation VARCHAR(4) NOT NULL
+    abbreviation VARCHAR(4) NOT NULL UNIQUE
 );
 
 CREATE TABLE countries (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(100) NOT NULL UNIQUE,
     coordinates GEOMETRY
 );
 
 CREATE TABLE colleges (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
+    name VARCHAR(100) NOT NULL UNIQUE
 );
 
 CREATE TABLE players (

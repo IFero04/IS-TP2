@@ -9,13 +9,13 @@ datasource db {
 
 model colleges {
   id      Int       @id @default(autoincrement())
-  name    String    @db.VarChar(100)
+  name    String    @unique @db.VarChar(100)
   players players[]
 }
 
 model countries {
   id          Int                      @id @default(autoincrement())
-  name        String                   @db.VarChar(100)
+  name        String                   @unique @db.VarChar(100)
   coordinates Unsupported("geometry")?
   players     players[]
 }
@@ -57,7 +57,7 @@ model players {
 
 model teams {
   id           Int       @id @default(autoincrement())
-  abbreviation String    @db.VarChar(4)
+  abbreviation String    @unique @db.VarChar(4)
   entries      entries[]
 }
 

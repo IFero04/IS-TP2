@@ -31,6 +31,12 @@ export class CountriesService {
     }
 
     
+    async readCountryByName(name: string) {
+        return this.prisma.countries.findFirst({
+            where: { name:String(name) },
+        });
+    }
+
     async readPlayersByCountry(id: number) {
         return this.prisma.countries.findUnique({
             where: { id:Number(id) },
