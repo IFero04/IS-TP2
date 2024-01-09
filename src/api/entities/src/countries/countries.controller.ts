@@ -41,6 +41,14 @@ export class CountriesController {
         try{
             const result = await this.countriesService.readAllCountries();
             
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'Countries not FOUND!',
+                    result: null,
+                });
+            }
+
             return response.status(200).json({
                 status: "OK!",
                 message: 'Countries retrieved successfully!',
@@ -61,6 +69,14 @@ export class CountriesController {
             const id = Number(request.params.id);
 
             const result = await this.countriesService.readCountryById(id);
+            
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'Country not FOUND!',
+                    result: null,
+                });
+            }
 
             return response.status(200).json({
                 status: "OK!",
@@ -82,6 +98,14 @@ export class CountriesController {
             const name = String(request.params.name);
 
             const result = await this.countriesService.readCountryByName(name);
+
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'Country not FOUND!',
+                    result: null,
+                });
+            }
 
             return response.status(200).json({
                 status: "OK!",

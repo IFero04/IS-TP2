@@ -30,6 +30,12 @@ export class CollegesService {
         });
     }
 
+    async readCollegeByName(name: string) {
+        return this.prisma.colleges.findUnique({
+            where: { name:String(name) },
+        });
+    }
+
     // Update
     async updateCollege(id: number, college: UpdateCollegeDto) {
         return this.prisma.colleges.update({

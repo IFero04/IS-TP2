@@ -1,11 +1,12 @@
 import xml.etree.ElementTree as ET
-from utils.str_to_ascii import str_to_ascii
+
 
 
 class Country:
 
     def __init__(self, name: str):
-        self._id = str_to_ascii(name.strip())
+        Country.counter += 1
+        self._id = Country.counter
         self._name = name
 
     def to_xml(self):
@@ -16,5 +17,15 @@ class Country:
 
         return country_element
 
+    def get_id(self):
+        return self._id
+
+    def get_name(self):
+        return self._name
+
     def __str__(self):
         return f"name: {self._name}, id:{self._id}"
+
+
+Country.counter = 0
+

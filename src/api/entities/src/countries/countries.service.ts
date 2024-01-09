@@ -29,10 +29,9 @@ export class CountriesService {
             where: { id:Number(id) },
         });
     }
-
     
     async readCountryByName(name: string) {
-        return this.prisma.countries.findFirst({
+        return this.prisma.countries.findUnique({
             where: { name:String(name) },
         });
     }

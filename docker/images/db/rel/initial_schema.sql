@@ -16,7 +16,7 @@ CREATE TABLE colleges (
 
 CREATE TABLE players (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(100) NOT NULL UNIQUE,
     age INTEGER NOT NULL,
     height FLOAT NOT NULL,
     weight FLOAT NOT NULL,
@@ -41,5 +41,7 @@ CREATE TABLE entries (
     ts_pct FLOAT NOT NULL,
     ast_pct FLOAT NOT NULL,
     player_ref INTEGER REFERENCES players(id) NOT NULL,
-    team_ref INTEGER REFERENCES teams(id) NOT NULL
+    team_ref INTEGER REFERENCES teams(id) NOT NULL,
+
+    UNIQUE (season, player_ref, team_ref)
 );

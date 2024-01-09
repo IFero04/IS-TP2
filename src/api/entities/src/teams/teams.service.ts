@@ -30,6 +30,12 @@ export class TeamsService {
         });
     }
 
+    async readTeamByAbbreviation(abbreviation: string) {
+        return this.prisma.teams.findUnique({
+            where: { abbreviation:String(abbreviation) },
+        });
+    }
+
     // Update
     async updateTeam(id: number, team: UpdateTeamDto) {
         return this.prisma.teams.update({

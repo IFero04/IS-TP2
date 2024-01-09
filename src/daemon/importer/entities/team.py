@@ -1,11 +1,11 @@
 import xml.etree.ElementTree as ET
-from utils.str_to_ascii import str_to_ascii
 
 
 class Team:
 
     def __init__(self, abbreviation: str):
-        self._id = str_to_ascii(abbreviation.strip())
+        Team.counter += 1
+        self._id = Team.counter
         self._abbreviation = abbreviation
 
     def to_xml(self):
@@ -15,6 +15,15 @@ class Team:
         ET.SubElement(team_element, "abbreviation").text = self._abbreviation
 
         return team_element
+    
+    def get_id(self):
+        return self._id
+    
+    def get_abbreviation(self):
+        return self._abbreviation
 
     def __str__(self):
         return f"{self._abbreviation} ({self._id})"
+
+
+Team.counter = 0

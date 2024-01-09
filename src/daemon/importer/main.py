@@ -33,7 +33,7 @@ def convert_csv_to_xml(csv, out_path):
     try:
         xml_str = converter.xml_to_str()
         # with open(out_path, "w") as file:
-        # file.write(xml_str)
+        #     file.write(xml_str)
 
         return xml_str
     except Exception as e:
@@ -117,8 +117,30 @@ class CSVHandler(FileSystemEventHandler):
         if not event.is_directory and event.src_path.endswith(".csv"):
             asyncio.run(self.convert_csv(event.src_path))
 
+def _check_db():
+    query = """
+        SELECT 1;
+    """
+    try:
+        with PostgresDB('db-xml', '5432', 'is', 'is', 'is') as db:
+            try:
+                db.execute_query(query, multi=False)
+            except Exception:
+                return False
+    except Exception:
+        return False
+    
+    return True
 
 if __name__ == "__main__":
+    print("Loading DataBase ...")
+    while True:
+        leave = _check_db()
+        if leave:
+            print("DataBase loaded.")
+            break
+        print("Retrying in 30 seconds ...")
+        time.sleep(30)
 
     CSV_INPUT_PATH = "/csv"
     XML_OUTPUT_PATH = "/xml"
@@ -138,3 +160,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         observer.stop()
         observer.join()
+

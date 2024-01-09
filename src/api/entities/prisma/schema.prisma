@@ -37,11 +37,13 @@ model entries {
   team_ref   Int
   players    players @relation(fields: [player_ref], references: [id], onDelete: NoAction, onUpdate: NoAction)
   teams      teams   @relation(fields: [team_ref], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([season, player_ref, team_ref])
 }
 
 model players {
   id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(100)
+  name        String    @unique @db.VarChar(100)
   age         Int
   height      Float
   weight      Float

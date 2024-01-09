@@ -39,6 +39,14 @@ export class CollegesController {
     async readAllColleges(@Res() response: Response): Promise<any> {
         try{
             const result = await this.collegesService.readAllColleges();
+
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'Colleges not FOUND!',
+                    result: null,
+                });
+            }
             
             return response.status(200).json({
                 status: "OK!",
@@ -59,7 +67,44 @@ export class CollegesController {
         try{
             const id = Number(request.params.id);
             const result = await this.collegesService.readCollegeById(id);
-            
+
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'College not FOUND!',
+                    result: null,
+                });
+            }
+
+            return response.status(200).json({
+                status: "OK!",
+                message: 'College retrieved successfully!',
+                result: result,
+            });
+        }catch(err){
+            return response.status(500).json({
+                status: "ERROR!",
+                message: 'College not retrieved!',
+                result: err,
+            });
+        }
+    }
+
+    @Get('/name/:name')
+    async readCollegeByName(@Req() request: Request, @Res() response: Response): Promise<any> {
+        try{
+            const name = String(request.params.name);
+
+            const result = await this.collegesService.readCollegeByName(name);
+
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'College not FOUND!',
+                    result: null,
+                });
+            }
+
             return response.status(200).json({
                 status: "OK!",
                 message: 'College retrieved successfully!',

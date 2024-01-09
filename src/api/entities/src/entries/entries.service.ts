@@ -29,6 +29,17 @@ export class EntriesService {
             where: { id: Number(id) },
         });
     }
+
+    async readEntryUnique(season: string, player_ref: number, team_ref: number) {
+        return this.prisma.entries.findFirst({
+            where: { 
+                season: String(season),
+                player_ref: Number(player_ref),
+                team_ref: Number(team_ref)
+            },
+        });
+    }
+    
     
     // Update
     async updateEntry(id: number, entry: UpdateEntryDto) {

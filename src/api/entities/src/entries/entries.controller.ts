@@ -51,6 +51,14 @@ export class EntriesController {
         try {
             const result = await this.entriesService.readAllEntries();
 
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'Entries not FOUND!',
+                    result: null,
+                });
+            }
+
             return response.status(200).json({
                 status: "OK!",
                 message: 'Entries retrieved successfully!',
@@ -72,6 +80,14 @@ export class EntriesController {
 
             const result = await this.entriesService.readEntryById(id);
 
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'Entry not FOUND!',
+                    result: null,
+                });
+            }
+
             return response.status(200).json({
                 status: "OK!",
                 message: 'Entry retrieved successfully!',
@@ -85,6 +101,38 @@ export class EntriesController {
             });
         }
     }
+
+    @Get('unique/:season/:player_ref/:team_ref')
+    async readEntryUnique(@Req() request: Request, @Res() response: Response): Promise<any> {
+        try {
+            const season = String(request.params.season);
+            const player_ref = Number(request.params.player_ref);
+            const team_ref = Number(request.params.team_ref);
+
+            const result = await this.entriesService.readEntryUnique(season, player_ref, team_ref);
+
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'Entry not FOUND!',
+                    result: null,
+                });
+            }
+
+            return response.status(200).json({
+                status: "OK!",
+                message: 'Entry retrieved successfully!',
+                result: result,
+            });
+        }catch(err){
+            return response.status(500).json({
+                status: "ERROR!",
+                message: 'Entry not retrieved!',
+                result: err,
+            });
+        }
+    }
+
 
     // Update
     @Put(':id')

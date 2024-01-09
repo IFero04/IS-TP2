@@ -52,6 +52,20 @@ class CSVtoXMLConverter:
             )
         )
 
+        for player in players.values():
+            player_college = player.get_college()
+            if player_college:
+                for college in colleges.values():
+                    if college.get_name() == player_college:
+                        player.set_college_ref(college.get_id())
+                        break
+            player_country = player.get_country()
+            if player_country:
+                for country in countries.values():
+                    if country.get_name() == player_country :
+                        player.set_country_ref(country.get_id())
+                        break
+
         # read entry
         entries = self._reader.read_entities(
             attrs=["player_name", "team_abbreviation", "season"],
@@ -72,12 +86,22 @@ class CSVtoXMLConverter:
             )
         )
 
+        for entry in entries.values():
+            entry_player = entry.get_player()
+            if entry_player:
+                for player in players.values():
+                    if player.get_name() == entry_player:
+                        entry.set_player_ref(player.get_id())
+                        break
+            entry_team = entry.get_team()
+            if entry_team:
+                for team in teams.values():
+                    if team.get_abbreviation() == entry_team:
+                        entry.set_team_ref(team.get_id())
+                        break
+
         # generate the final XML
         root_el = ET.Element("NBAData")
-
-        players_el = ET.Element("players")
-        for player in players.values():
-            players_el.append(player.to_xml())
 
         teams_el = ET.Element("teams")
         for team in teams.values():
@@ -90,6 +114,10 @@ class CSVtoXMLConverter:
         colleges_el = ET.Element("colleges")
         for college in colleges.values():
             colleges_el.append(college.to_xml())
+
+        players_el = ET.Element("players")
+        for player in players.values():
+            players_el.append(player.to_xml())
 
         entries_el = ET.Element("entries")
         for entry in entries.values():

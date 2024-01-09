@@ -83,3 +83,40 @@ func ConsumeQueue(queueName string) ([]string, error) {
 
     return data, nil
 }
+
+func AddToQueue(queueName string, messageBody string) error {
+    channel, err := connection.Channel()
+    if err != nil {
+        return err
+    }
+    defer channel.Close()
+
+    queue, err := channel.QueueDeclare(
+        queueName,
+        false,
+        false,
+        false,
+        false,
+        nil, 
+    )
+    if err != nil {
+        return err
+    }
+
+    err = channel.Publish(
+        "",
+        queue.Name,
+        false,
+        false,
+        amqp.Publishing{
+            ContentType: 	"text/plain",
+            Body:        	[]byte(messageBody),
+			DeliveryMode:	amqp.Persistent,
+        },
+    )
+    if err != nil {
+        return err
+    }
+
+    return nil
+}

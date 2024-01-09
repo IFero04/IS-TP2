@@ -30,6 +30,12 @@ export class PlayersService {
         });
     }
 
+    async readPlayerByName(name: string) {
+        return this.prisma.players.findUnique({
+            where: { name:String(name) },
+        });
+    }
+
     // Update
     async updatePlayer(id: number, player: UpdatePlayerDto) {
         return this.prisma.players.update({

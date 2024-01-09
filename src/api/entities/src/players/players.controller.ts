@@ -48,6 +48,14 @@ export class PlayersController {
         try {
             const result = await this.playersService.readAllPlayers();
 
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'Players not FOUND!',
+                    result: null,
+                });
+            }
+
             return response.status(200).json({
                 status: "OK!",
                 message: 'Players read successfully!',
@@ -68,6 +76,43 @@ export class PlayersController {
             const id = Number(request.params.id);
 
             const result = await this.playersService.readPlayerById(id);
+
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'Player not FOUND!',
+                    result: null,
+                });
+            }
+
+            return response.status(200).json({
+                status: "OK!",
+                message: 'Player read successfully!',
+                result: result,
+            });
+        }catch(err){
+            return response.status(500).json({
+                status: "ERROR!",
+                message: 'Player not read!',
+                result: err,
+            });
+        }
+    }
+
+    @Get('name/:name')
+    async readPlayerByName(@Req() request: Request, @Res() response: Response): Promise<any> {
+        try {
+            const name = request.params.name;
+
+            const result = await this.playersService.readPlayerByName(name);
+
+            if (result == null) {
+                return response.status(404).json({
+                    status: "NOT FOUND!",
+                    message: 'Player not FOUND!',
+                    result: null,
+                });
+            }
 
             return response.status(200).json({
                 status: "OK!",

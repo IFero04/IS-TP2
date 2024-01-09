@@ -1,5 +1,4 @@
 import xml.etree.ElementTree as ET
-from utils.str_to_ascii import str_to_ascii
 
 
 class Entry:
@@ -20,7 +19,9 @@ class Entry:
         self._ts_pct = ts_pct
         self._ast_pct = ast_pct
         self._player = player
+        self._player_ref = 0
         self._team = team
+        self._team_ref = 0
 
     def to_xml(self):
 
@@ -39,10 +40,25 @@ class Entry:
         ET.SubElement(entry_element, "ts_pct").text = str(self._ts_pct)
         ET.SubElement(entry_element, "ast_pct").text = str(self._ast_pct)
 
-        entry_element.set("player_ref", str_to_ascii(str(self._player).strip()))
-        entry_element.set("team_ref", str_to_ascii(str(self._team).strip()))
+        entry_element.set("player_ref", str(self._player_ref))
+        entry_element.set("team_ref", str(self._team_ref))
 
         return entry_element
+    
+    def get_id(self):
+        return self._id
+    
+    def get_player(self):
+        return self._player
+    
+    def get_team(self):
+        return self._team
+    
+    def set_player_ref(self, player_ref):
+        self._player_ref = player_ref
+
+    def set_team_ref(self, team_ref):
+        self._team_ref = team_ref
 
     def __str__(self):
         return f"{self._season} ({self._id}"
