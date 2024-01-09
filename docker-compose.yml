@@ -58,7 +58,7 @@ services:
 
   # Container that automatically migrates data from db-xml to db-rel
   migrator:
-    container_name: go_migrator
+    container_name: migrator
     build: docker/images/golang
     volumes:
       - ./src/daemon/migrator:/usr/src/app
