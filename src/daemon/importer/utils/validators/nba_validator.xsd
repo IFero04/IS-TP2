@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="NBAData">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="countries">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="country" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="name" type="xs:string"/>
+                                    </xs:sequence>
+                                    <xs:attribute name="id" type="xs:integer" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="colleges">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="college" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="name" type="xs:string"/>
+                                    </xs:sequence>
+                                    <xs:attribute name="id" type="xs:integer" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="teams">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="team" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="abbreviation" type="xs:string" />
+                                    </xs:sequence>
+                                    <xs:attribute name="id" type="xs:integer" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="players">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="player" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="name" type="xs:string"/>
+                                        <xs:element name="age" type="xs:integer"/>
+                                        <xs:element name="height" type="xs:float"/>
+                                        <xs:element name="weight" type="xs:float"/>
+                                        <xs:element name="draft_year" type="xs:string"/>
+                                        <xs:element name="draft_round" type="xs:string"/>
+                                        <xs:element name="draft_number" type="xs:string"/>
+                                    </xs:sequence>
+                                    <xs:attribute name="id" type="xs:integer" use="required"/>
+                                    <xs:attribute name="college_ref" type="xs:integer"/>
+                                    <xs:attribute name="country_ref" type="xs:integer" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="entries">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="entry" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="season" type="xs:string"/>
+                                        <xs:element name="gp" type="xs:integer"/>
+                                        <xs:element name="pts" type="xs:float"/>
+                                        <xs:element name="reb" type="xs:float"/>
+                                        <xs:element name="ast" type="xs:float"/>
+                                        <xs:element name="net_rating" type="xs:float"/>
+                                        <xs:element name="oreb_pct" type="xs:float"/>
+                                        <xs:element name="dreb_pct" type="xs:float"/>
+                                        <xs:element name="usg_pct" type="xs:float"/>
+                                        <xs:element name="ts_pct" type="xs:float"/>
+                                        <xs:element name="ast_pct" type="xs:float"/>
+                                    </xs:sequence>
+                                    <xs:attribute name="id" type="xs:integer" use="required"/>
+                                    <xs:attribute name="player_ref" type="xs:integer" use="required"/>
+                                    <xs:attribute name="team_ref" type="xs:integer" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

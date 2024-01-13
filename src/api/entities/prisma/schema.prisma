@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model colleges {
+  id      Int       @id @default(autoincrement())
+  name    String    @unique @db.VarChar(100)
+  players players[]
+}
+
+model countries {
+  id          Int                      @id @default(autoincrement())
+  name        String                   @unique @db.VarChar(100)
+  coordinates Unsupported("geometry")?
+  players     players[]
+}
+
+model entries {
+  id         Int     @id @default(autoincrement())
+  season     String  @db.VarChar(8)
+  gp         Int
+  pts        Float
+  reb        Float
+  ast        Float
+  net_rating Float
+  oreb_pct   Float
+  dreb_pct   Float
+  usg_pct    Float
+  ts_pct     Float
+  ast_pct    Float
+  player_ref Int
+  team_ref   Int
+  players    players @relation(fields: [player_ref], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teams      teams   @relation(fields: [team_ref], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([season, player_ref, team_ref])
+}
+
+model players {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(100)
+  age         Int
+  height      Float
+  weight      Float
+  draftyear   Int
+  draftround  Int
+  draftnumber Int
+  college_ref Int?
+  country_ref Int
+  entries     entries[]
+  colleges    colleges? @relation(fields: [college_ref], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  countries   countries @relation(fields: [country_ref], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model teams {
+  id           Int       @id @default(autoincrement())
+  abbreviation String    @unique @db.VarChar(4)
+  entries      entries[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spatial_ref_sys {
+  srid      Int     @id
+  auth_name String? @db.VarChar(256)
+  auth_srid Int?
+  srtext    String? @db.VarChar(2048)
+  proj4text String? @db.VarChar(2048)
+}
