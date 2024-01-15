@@ -3,6 +3,7 @@ import time
 
 from collections import OrderedDict
 from flask import Flask
+from flask_cors import CORS
 
 from functions.server_connection import RPCServer
 from functions.server_querys import *
@@ -10,7 +11,9 @@ from functions.server_querys import *
 PORT = int(sys.argv[1]) if len(sys.argv) >= 2 else 9000
 
 app = Flask(__name__)
+cors = CORS(app)
 app.config["DEBUG"] = True
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 @app.route('/api/listFiles', methods=['GET'])

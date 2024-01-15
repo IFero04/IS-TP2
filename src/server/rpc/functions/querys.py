@@ -144,6 +144,8 @@ def team_players_per_season(season='2001-02'):
 
 
 def top_players():
+    countries = all_countries()
+
     try:
         with PostgresDB('db-xml', '5432', 'is', 'is', 'is') as db:
             query = '''
@@ -151,15 +153,35 @@ def top_players():
                     unnest(xpath('//players/player/name/text()', xml::xml))::text AS player_name,
                     unnest(xpath('//players/player/draft_year/text()', xml::xml))::text AS draft_year,
                     unnest(xpath('//players/player/draft_round/text()', xml::xml))::text AS draft_round,
-                    unnest(xpath('//players/player/draft_number/text()', xml::xml))::text AS draft_number
+                    unnest(xpath('//players/player/draft_number/text()', xml::xml))::text AS draft_number,
+                    unnest(xpath('//players/player/age/text()', xml::xml))::text AS player_age,
+                    unnest(xpath('//players/player/height/text()', xml::xml))::text AS player_height,
+                    unnest(xpath('//players/player/weight/text()', xml::xml))::text AS player_weight,
+                    unnest(xpath('//players/player/@country_ref', xml::xml))::text AS player_country_ref
                 FROM imported_documents
                 WHERE deleted_on IS NULL;
             '''
             players = db.execute_query(query, multi=True)
 
-            filtered_players = filter(lambda player: player[2] == '1' and player[3] == '1', players)
-            sorted_players = sorted(filtered_players, key=lambda x: int(x[1]))
-            result = [{"name": player[0], "draft_year": player[1]} for player in sorted_players]
+            years = set(map(lambda x: x[1], filter(lambda x: x[1] != '0', players)))
+            top_player_per_year = []
+
+            for year in years:
+                filtered_players = filter(lambda player: player[1] == year and player[3] != '0' and player[4] != '0', players)
+                sorted_players = sorted(filtered_players, key=lambda x: (int(x[3]), int(x[4])))
+                top_player_per_year.append(sorted_players[0])
+            
+            top_player_per_year = sorted(top_player_per_year, key=lambda x: int(x[1]))
+
+            result = [{"name": player[0],
+                        "age": player[4],
+                        "height": player[5],
+                        "weight": player[6],
+                        "country": countries[player[7]],
+                        "draft_year": player[1],
+                        "draft_round": player[2],
+                        "draft_number": player[3]
+                    } for player in top_player_per_year]
 
             return result
     except Exception as e:
@@ -177,18 +199,26 @@ def tallest_country():
         with PostgresDB('db-xml', '5432', 'is', 'is', 'is') as db:
             query = '''
                 SELECT 
+                    unnest(xpath('//players/player/name/text()', xml::xml))::text AS player_name,
                     unnest(xpath('//players/player/height/text()', xml::xml))::text AS player_height,
                     unnest(xpath('//players/player/@country_ref', xml::xml))::text AS player_country_ref
                 FROM imported_documents
                 WHERE deleted_on IS NULL;
             '''
             players = db.execute_query(query, multi=True)
+            unique_players = set()
+            filtered_players = []
+            for player in players:
+                key = player[0]
+                if key not in unique_players:
+                    unique_players.add(key)
+                    filtered_players.append(player)
 
             country_num_players = {}
             country_total_height = {}
-            for player in players:
-                player_height = round(float(player[0]), 2)
-                player_country = countries[player[1]]
+            for player in filtered_players:
+                player_height = round(float(player[1]), 2)
+                player_country = countries[player[2]]
 
                 if player_country not in country_num_players:
                     country_num_players[player_country] = 0
@@ -199,7 +229,8 @@ def tallest_country():
 
             countries_data = {}
             for country, num_players in country_num_players.items():
-                countries_data[country] = round(country_total_height[country] / num_players, 2)
+                if num_players >= 5:
+                    countries_data[country] = round(country_total_height[country] / num_players, 2)
 
             countries_data_sorted = sorted(countries_data.items(), key=lambda x: x[1], reverse=True)
             rank = 1
@@ -209,7 +240,7 @@ def tallest_country():
             for country, avg_height in countries_data_sorted:
                 if avg_height < prev_avg_height:
                     rank += 1
-                result.append({"country": country, "avg_height": avg_height, "rank": rank})
+                result.append({"country": country, "num_players": country_num_players[country], "avg_height": avg_height, "rank": rank})
                 prev_avg_height = avg_height
 
             return result

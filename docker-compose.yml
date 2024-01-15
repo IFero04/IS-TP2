@@ -181,26 +181,25 @@ services:
 #    depends_on:
 #      - api-gis
 #
-#  # Container that runs the web interface for displaying the map
-#  frontend-proc:
-#    container_name: frontend-proc
-#    build: docker/images/web
-#    volumes:
-#      - ./src/frontend/proc:/usr/src/app
-#      - ./src/frontend/_shared/components:/usr/src/app/components
-#      - ./src/frontend/_shared/public:/usr/src/app/public
-#    ports:
-#      - "${EXT_PORT_FRONTEND_PROC}:${EXT_PORT_FRONTEND_PROC}"
-#    environment:
-#      USE_DEV_MODE: ${USE_DEV_MODE}
-#      WEB_PORT: ${EXT_PORT_FRONTEND_PROC}
-#      API_GRAPHQL_URL: "localhost:${EXT_PORT_API_GRAPHQL}"
-#      API_PROC_URL: "localhost:${EXT_PORT_API_PROC}"
-#    depends_on:
-#      - api-proc
-#      - api-graphql
-
-
+  # Container that runs the web interface for displaying the map
+  frontend-proc:
+    container_name: frontend-proc
+    build: docker/images/web
+    stdin_open: true
+    volumes:
+      - ./src/frontend/proc:/usr/src/app
+      - ./src/frontend/_shared/components:/usr/src/app/components
+      - ./src/frontend/_shared/public:/usr/src/app/public
+    ports:
+      - "${EXT_PORT_FRONTEND_PROC}:${EXT_PORT_FRONTEND_PROC}"
+    environment:
+      USE_DEV_MODE: ${USE_DEV_MODE}
+      WEB_PORT: ${EXT_PORT_FRONTEND_PROC}
+      API_GRAPHQL_URL: "localhost:${EXT_PORT_API_GRAPHQL}"
+      API_PROC_URL: "localhost:${EXT_PORT_API_PROC}"
+    depends_on:
+      - api-proc
+      - api-graphql
 
   # Container that runs the rabbitmq broker queue
   broker:

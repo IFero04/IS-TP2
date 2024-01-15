@@ -1,13 +1,16 @@
 import sys
 import time
-from flask import Flask, jsonify, request
-from utilis.db import PostgresDB, check_db
+from flask import Flask, request
+from flask_cors import CORS
+from utilis.db import check_db
 from utilis.api import get_markers, update_country_coordinates
 
 PORT = int(sys.argv[1]) if len(sys.argv) >= 2 else 9000
 
 app = Flask(__name__)
+cors = CORS(app)
 app.config["DEBUG"] = True
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 
 @app.route('/api/check', methods=['GET'])

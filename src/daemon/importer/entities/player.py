@@ -24,8 +24,8 @@ class Player:
 
         ET.SubElement(player_element, "name").text = self._name
         ET.SubElement(player_element, "age").text = str(round(float(self._age)))
-        ET.SubElement(player_element, "height").text = str(self._height)
-        ET.SubElement(player_element, "weight").text = str(self._weight)
+        ET.SubElement(player_element, "height").text = "{:.2f}".format(float(self._height))
+        ET.SubElement(player_element, "weight").text = "{:.2f}".format(float(self._weight))
 
         if str(self._draft_year).strip() == 'Undrafted':
             self._draft_year = 0
