@@ -271,7 +271,7 @@ def team_season_stats():
             for entry in entries:
                 season = entry[0]
                 pts = float(entry[1])
-                team = entry[2]
+                team = teams[entry[2]]
 
                 if team not in team_data:
                     team_data[team] = {}
@@ -283,7 +283,7 @@ def team_season_stats():
                 
             result = []
             for team, seasons in team_data.items():
-                team_entry = {'team': teams[team], 'seasons': []}
+                team_entry = {'team': team, 'seasons': []}
                 for season, total_pts in sorted(seasons.items(), key=lambda x: x[1], reverse=True):
                     team_entry['seasons'].append({'season': season, 'total_pts': round(total_pts, 2)})
                 result.append(team_entry)
