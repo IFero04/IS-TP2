@@ -17,17 +17,23 @@ import {
   Select,
 } from "@mui/material";
 
-// PlayerStats component
+
 function PlayerStats() {
   const [procData, setProcData] = useState(null);
-  const [selectedPlayer, setSelectedPlayer] = useState("");
-  const [availablePlayers, setAvailablePlayers] = useState([]);
-  const [orderBy, setOrderBy] = useState("");
+  const [selectedRange, setSelectedRange] = useState("");
+  const [availableGroups, setAvailableGroups] = useState([
+    "A - D",
+    "E - H",
+    "I - L",
+    "M - P",
+    "Q - T",
+    "U - X",
+    "Y - Z",
+  ]);
+  const [orderBy, setOrderBy] = useState("player");
   const [order, setOrder] = useState("asc");
   const [loading, setLoading] = useState(true);
-  const [loadedFilters, setLoadedFilters] = useState(false);
 
-  // useEffect to fetch data from the new API
   useEffect(() => {
     setLoading(true);
     setProcData(null);
@@ -39,26 +45,32 @@ function PlayerStats() {
       .then((data) => {
         console.log(`Fetched data from ${apiUrl}`);
         if (data.result && data.result.length > 0) {
-          // LOADING FILTERS
-          if (!loadedFilters) {
-            const players = new Set();
-
-            data.result.forEach((item) => {
-              players.add(item.player);
-            });
-
-            setAvailablePlayers([...players]);
-            setLoadedFilters(true);
-          }   
-          // LOADING DATA
-          const player_data = []
-          data.result.forEach((item) => {
-
-            console.log(item.stats)
+          const players_data = data.result.map((item) => {
+            return {
+              player: item.player,
+              gp: item.stats.find((stat) => stat.stat === "gp")?.value || 0,
+              pts: item.stats.find((stat) => stat.stat === "pts")?.value || 0,
+              reb: item.stats.find((stat) => stat.stat === "reb")?.value || 0,
+              ast: item.stats.find((stat) => stat.stat === "ast")?.value || 0,
+              net_rating: item.stats.find((stat) => stat.stat === "net_rating")?.value || 0,
+              oreb_pct: item.stats.find((stat) => stat.stat === "oreb_pct")?.value || 0,
+              dreb_pct: item.stats.find((stat) => stat.stat === "dreb_pct")?.value || 0,
+              usg_pct: item.stats.find((stat) => stat.stat === "usg_pct")?.value || 0,
+              ts_pct: item.stats.find((stat) => stat.stat === "ts_pct")?.value || 0,
+              ast_pct: item.stats.find((stat) => stat.stat === "ast_pct")?.value || 0,
+            };
           });
 
-
-          setProcData(data.result);
+          if (selectedRange) {
+            const [startLetter, endLetter] = selectedRange.split(" - ");
+            const filteredData = players_data.filter(
+              (item) =>
+                item.player[0] >= startLetter && item.player[0] <= endLetter
+            );
+            setProcData(filteredData);
+          } else {
+            setProcData(players_data);
+          }
         }
       })
       .catch((error) => {
@@ -67,22 +79,21 @@ function PlayerStats() {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [selectedRange]);
 
-  // Function to handle sorting
   const handleSort = (column) => {
     const isAsc = orderBy === column && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(column);
   };
 
-  // Sorting logic
   const sortedData = procData
     ? [...procData].sort((a, b) => {
-        const aValue = a.stats.find((stat) => stat.stat === orderBy)?.value || 0;
-        const bValue = b.stats.find((stat) => stat.stat === orderBy)?.value || 0;
-
-        return order === "asc" ? aValue - bValue : bValue - aValue;
+        if (order === "asc") {
+          return a[orderBy] > b[orderBy] ? 1 : -1;
+        } else {
+          return a[orderBy] < b[orderBy] ? 1 : -1;
+        }
       })
     : null;
 
@@ -92,23 +103,22 @@ function PlayerStats() {
         Player Stats
       </Typography>
 
-      {/* Player filter dropdown */}
       <FormControl fullWidth>
-        <InputLabel id="player-select-label">Select Player</InputLabel>
+        <InputLabel id="letters-range-select-label">Select Range</InputLabel>
         <Select
-          labelId="player-select-label"
-          id="player-select"
-          value={selectedPlayer}
-          label="Select Player"
-          onChange={(e) => setSelectedPlayer(e.target.value)}
+          labelId="letters-range-select-label"
+          id="letters-range-select"
+          value={selectedRange}
+          label="Select Range"
+          onChange={(e) => setSelectedRange(e.target.value)}
           disabled={loading}
         >
           <MenuItem value="">
             <em>All Players</em>
           </MenuItem>
-          {availablePlayers.map((player) => (
-            <MenuItem key={player} value={player}>
-              {player}
+          {availableGroups.map((group) => (
+            <MenuItem key={group} value={group}>
+              {group}
             </MenuItem>
           ))}
         </Select>
@@ -117,7 +127,6 @@ function PlayerStats() {
       {loading ? (
         <CircularProgress style={{ marginTop: "1rem" }} />
       ) : (
-        // Displaying the player stats table
         <TableContainer style={{ marginTop: "1rem" }}>
           <Table>
             <TableHead>
@@ -131,7 +140,6 @@ function PlayerStats() {
                     Player
                   </TableSortLabel>
                 </TableCell>
-                {/* Table headers for player stats */}
                 <TableCell>
                   <TableSortLabel
                     active={orderBy === "gp"}
@@ -150,24 +158,42 @@ function PlayerStats() {
                     Points
                   </TableSortLabel>
                 </TableCell>
-                {/* Include headers for other stats as needed */}
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === "reb"}
+                    direction={orderBy === "reb" ? order : "asc"}
+                    onClick={() => handleSort("reb")}
+                  >
+                    Rebounds
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === "ast"}
+                    direction={orderBy === "ast" ? order : "asc"}
+                    onClick={() => handleSort("ast")}
+                  >
+                    Assists
+                  </TableSortLabel>
+                </TableCell>
+                {/* Include other headers for additional stats */}
               </TableRow>
             </TableHead>
             <TableBody>
-              {/* Displaying player stats rows */}
               {sortedData ? (
                 sortedData.map((player) => (
                   <TableRow key={player.player}>
                     <TableCell>{player.player}</TableCell>
-                    {player.stats.map((stat) => (
-                      <TableCell key={stat.stat}>{stat.value}</TableCell>
-                    ))}
+                    <TableCell>{player.gp}</TableCell>
+                    <TableCell>{player.pts}</TableCell>
+                    <TableCell>{player.reb}</TableCell>
+                    <TableCell>{player.ast}</TableCell>
+                    {/* Include other cells for additional stats */}
                   </TableRow>
                 ))
               ) : (
-                // Displayed when there is no data
                 <TableRow>
-                  <TableCell colSpan={3}>No data available</TableCell>
+                  <TableCell colSpan={5}>No data available</TableCell>
                 </TableRow>
               )}
             </TableBody>

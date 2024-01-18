@@ -1,7 +1,9 @@
 from db.db import PostgresDB
 
 
-def __calculate_average(data):
+def __calculate_average(data, stat):
+    if stat == 'gp':
+        return sum(data)
     total = sum(data)
     count = len(data)
     if count == 0:
@@ -68,15 +70,16 @@ def avg_stats_players():
             averages = {}
             for player, stats in player_stats.items():
                 averages[player] = {
-                    stat: __calculate_average(data) for stat, data in stats.items()
+                    stat: __calculate_average(data, stat) for stat, data in stats.items()
                 }
 
             result = []
             for player, stats in averages.items():
-                player_stats = {'player': player, 'stats': []}
-                for stat, value in stats.items():
-                    player_stats['stats'].append({'stat': stat, 'value': value})
-                result.append(player_stats)
+                if stats['gp'] >= 100:
+                    player_stats = {'player': player, 'stats': []}
+                    for stat, value in stats.items():
+                        player_stats['stats'].append({'stat': stat, 'value': value})
+                    result.append(player_stats)
 
             return result
     except Exception as e:
