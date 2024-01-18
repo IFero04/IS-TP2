@@ -28,45 +28,58 @@ function TeamSeasonStats() {
   const [orderBy, setOrderBy] = useState("");
   const [order, setOrder] = useState("asc");
   const [loading, setLoading] = useState(true);
+  const [loadedFilters, setLoadedFilters] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
     setProcData(null);
 
     const apiUrl = `http://${process.env.NEXT_PUBLIC_API_PROC_URL}/api/teamSeasonStats`;
-
-    setLoading(true);
 
     fetch(apiUrl)
       .then((res) => res.json())
       .then((data) => {
         console.log(`Fetched data from ${apiUrl}`);
         if (data.result && data.result.length > 0) {
-          const seasons = new Set();
-          data.result.forEach((entry) => {
-            entry.seasons.forEach((season) => {
-              seasons.add(season.season);
+          // LOADING FILTERS
+          if (!loadedFilters) {
+            const seasons = new Set();
+            const teams = new Set();
+
+            data.result.forEach((entry) => {
+              entry.seasons.forEach((season) => {
+                seasons.add(season.season);
+              });
+              teams.add(entry.team);
+            });
+
+            const seasonYears = [...seasons].map((season) => parseInt(season.split("-")[0]));
+            const minYear = Math.min(...seasonYears);
+            const maxYear = Math.max(...seasonYears) + 1;
+
+            setSeasonYearRange([minYear, maxYear]);
+            setSelectedYearRange([minYear, maxYear]);
+
+            const sortedTeams = [...teams].sort();
+            setAvailableTeams(sortedTeams);
+
+            setLoadedFilters(true);
+          }
+
+          // LOADING DATA
+          let filteredData = data.result;
+          if (selectedTeam) {
+            filteredData = data.result.filter((team) => team.team === selectedTeam);
+          }
+
+          filteredData.forEach((entry) => {
+            entry.seasons = entry.seasons.filter((season) => {
+              const seasonYear = parseInt(season.season.split("-")[0]);
+              return seasonYear >= selectedYearRange[0] && seasonYear <= selectedYearRange[1];
             });
           });
 
-          const season_years = [...seasons].map((season) => parseInt(season.split("-")[0]));
-
-          setSeasonYearRange([Math.min(...season_years), Math.max(...season_years) + 1]);
-
-          const teams = new Set();
-          data.result.forEach((entry) => {
-            teams.add(entry.team);
-          });
-
-          const sortedTeams = [...teams].sort();
-
-          setAvailableTeams(sortedTeams);
-
-          if (selectedTeam) {
-            const filteredData = data.result.filter((team) => team.team === selectedTeam);
-            setProcData(filteredData);
-          } else {
-            setProcData(data.result);
-          }
+          setProcData(filteredData);
         }
       })
       .catch((error) => {
@@ -75,7 +88,7 @@ function TeamSeasonStats() {
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedTeam]);
+  }, [selectedTeam, selectedYearRange, loadedFilters]);
 
   const handleSort = (column) => {
     const isAsc = orderBy === column && order === "asc";
@@ -83,32 +96,34 @@ function TeamSeasonStats() {
     setOrderBy(column);
   };
 
-  const handleSeasonYearRangeChange = (event, newValue) => {
-    setSelectedYearRange(newValue);
-  };
-
-  const filteredData = procData
-    ? procData.filter(
-        (team) =>
-          (!selectedTeam || team.team === selectedTeam) &&
-          (selectedYearRange.length === 0 ||
-            team.seasons.some(
-              (season) =>
-                seasonYearRange[0] <= parseInt(season.season.split("-")[0]) &&
-                parseInt(season.season.split("-")[0]) <= seasonYearRange[1]
-            ))
-      )
-    : null;
-
-  const sortedData = filteredData
-    ? [...filteredData].sort((a, b) => {
-        if (order === "asc") {
-          return a[orderBy] > b[orderBy] ? 1 : -1;
+  const sortedData = procData
+    ? [...procData].sort((a, b) => {
+        if (orderBy === "total_pts") {
+          const aPoints = parseInt(a.seasons[0][orderBy]);
+          const bPoints = parseInt(b.seasons[0][orderBy]);
+          if (order === "asc") {
+            return aPoints - bPoints;
+          } else {
+            return bPoints - aPoints;
+          }
+        } else if (orderBy === "season") {
+          const aSeasonYear = a.seasons[0][orderBy] ? parseInt(a.seasons[0][orderBy].split("-")[0]) : 0;
+          const bSeasonYear = b.seasons[0][orderBy] ? parseInt(b.seasons[0][orderBy].split("-")[0]) : 0;
+          if (order === "asc") {
+            return aSeasonYear - bSeasonYear;
+          } else {
+            return bSeasonYear - aSeasonYear;
+          }
         } else {
-          return a[orderBy] < b[orderBy] ? 1 : -1;
+          if (order === "asc") {
+            return a[orderBy]?.localeCompare(b[orderBy]) || 0;
+          } else {
+            return b[orderBy]?.localeCompare(a[orderBy]) || 0;
+          }
         }
       })
     : null;
+
 
   return (
     <Container maxWidth="md" style={{ marginTop: "2rem" }}>
@@ -139,12 +154,17 @@ function TeamSeasonStats() {
 
       <Grid container spacing={2} alignItems="center">
         <Grid item>
-          <Typography>Season Year: {seasonYearRange[0]} - {seasonYearRange[1]}</Typography>
+          <Typography>Season Year: {selectedYearRange[0]} - {selectedYearRange[1]}</Typography>
         </Grid>
         <Grid item xs>
           <Slider
             value={selectedYearRange}
-            onChange={handleSeasonYearRangeChange}
+            onChange={(_, newValue) => {
+              // Ensure the values are not the same before updating the state
+              if (newValue[0] !== newValue[1]) {
+                setSelectedYearRange(newValue);
+              }
+            }}
             valueLabelDisplay="auto"
             min={seasonYearRange[0]}
             max={seasonYearRange[1]}
