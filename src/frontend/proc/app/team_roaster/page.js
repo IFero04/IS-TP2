@@ -13,45 +13,49 @@ import {
   Button,
   ButtonGroup,
   CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
-
 
 function TeamRoaster() {
   const [procData, setProcData] = useState(null);
+  const [selectedTeam, setSelectedTeam] = useState("");
+  const [availableTeams, setAvailableTeams] = useState([]);
   const [selectedSeason, setSelectedSeason] = useState("1996-97");
   const [seasons] = useState([
-        "1996-97",
-        "1997-98",
-        "1998-99",
-        "1999-00",
-        "2000-01",
-        "2001-02",
-        "2002-03",
-        "2003-04",
-        "2004-05",
-        "2005-06",
-        "2006-07",
-        "2007-08",
-        "2008-09",
-        "2009-10",
-        "2010-11",
-        "2011-12",
-        "2012-13",
-        "2013-14",
-        "2014-15",
-        "2015-16",
-        "2016-17",
-        "2017-18",
-        "2018-19",
-        "2019-20",
-        "2020-21",
-        "2021-22",
-        "2022-23"
-    ]);
+    "1996-97",
+    "1997-98",
+    "1998-99",
+    "1999-00",
+    "2000-01",
+    "2001-02",
+    "2002-03",
+    "2003-04",
+    "2004-05",
+    "2005-06",
+    "2006-07",
+    "2007-08",
+    "2008-09",
+    "2009-10",
+    "2010-11",
+    "2011-12",
+    "2012-13",
+    "2013-14",
+    "2014-15",
+    "2015-16",
+    "2016-17",
+    "2017-18",
+    "2018-19",
+    "2019-20",
+    "2020-21",
+    "2021-22",
+    "2022-23",
+  ]);
   const [orderBy, setOrderBy] = useState("");
   const [order, setOrder] = useState("asc");
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     setLoading(true);
@@ -64,7 +68,20 @@ function TeamRoaster() {
       .then((data) => {
         console.log(`Fetched data from ${apiUrl}`);
         if (data.result && data.result.length > 0) {
-          setProcData(data.result);
+          const teams = new Set();
+          data.result.forEach((item) => {
+            teams.add(item.team);
+          });
+          const sortedTeams = [...teams].sort();
+
+          setAvailableTeams(sortedTeams);
+
+          if (selectedTeam) {
+            const filteredData = data.result.filter((team) => team.team === selectedTeam);
+            setProcData(filteredData);
+          } else {
+            setProcData(data.result);
+          }
         }
       })
       .catch((error) => {
@@ -73,7 +90,7 @@ function TeamRoaster() {
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedSeason]);
+  }, [selectedSeason, selectedTeam]);
 
   const handleSort = (column) => {
     const isAsc = orderBy === column && order === "asc";
@@ -91,6 +108,10 @@ function TeamRoaster() {
     const currentIndex = seasons.indexOf(selectedSeason);
     const prevIndex = currentIndex > 0 ? currentIndex - 1 : seasons.length - 1;
     setSelectedSeason(seasons[prevIndex]);
+  };
+
+  const handleTeamChange = (event) => {
+    setSelectedTeam(event.target.value);
   };
 
   const sortedData = procData
@@ -118,6 +139,26 @@ function TeamRoaster() {
           </ButtonGroup>
         </>
       )}
+
+      <FormControl fullWidth style={{ marginBottom: "1rem" }}>
+        <InputLabel id="team-select-label">Select Team</InputLabel>
+        <Select
+          labelId="team-select-label"
+          id="team-select"
+          value={selectedTeam}
+          label="Select Team"
+          onChange={handleTeamChange}
+        >
+          <MenuItem value="">
+            <em>All Teams</em>
+          </MenuItem>
+          {availableTeams.map((team) => (
+            <MenuItem key={team} value={team}>
+              {team}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
       {loading ? (
         <CircularProgress style={{ marginTop: "1rem" }} />
