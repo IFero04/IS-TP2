@@ -83,7 +83,6 @@ function TeamSeasonStats() {
           });
 
           setProcData(filteredData);
-          setGraphqlData(filteredData);
         }
       })
       .catch((error) => {
