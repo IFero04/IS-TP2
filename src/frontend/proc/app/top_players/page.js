@@ -21,11 +21,13 @@ import {
 function TopPlayers() {
   const [procData, setProcData] = useState(null);
   const [graphqlData, setGraphqlData] = useState(null);
+
   const [orderBy, setOrderBy] = useState("");
   const [order, setOrder] = useState("asc");
   const [availableYears, setAvailableYears] = useState([]);
   const [selectedYearRange, setSelectedYearRange] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadedFilters, setLoadedFilters] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -39,17 +41,22 @@ function TopPlayers() {
       .then((data) => {
         console.log(`Fetched data from ${apiUrlProc}`);
         if (data.result && data.result.length > 0) {
-          const years = data.result.map((player) => parseInt(player.draft_year, 10));
-          const startYear = Math.min(...years);
-          const endYear = Math.max(...years);
-          setAvailableYears(generateYearList(startYear, endYear));
-        }
+          if (!loadedFilters) {
+            // LOADING FILTERS
+            const years = data.result.map((player) => parseInt(player.draft_year, 10));
+            const startYear = Math.min(...years);
+            const endYear = Math.max(...years);
+            setAvailableYears(generateYearList(startYear, endYear));
 
-        if (selectedYearRange) {
-          const filteredData = data.result.filter((player) => player.draft_year >= selectedYearRange && player.draft_year <= (parseInt(selectedYearRange, 10) + 9));
-          setProcData(filteredData);
-        } else {
-          setProcData(data.result);
+            setLoadedFilters(true);
+          }
+          // LOADING DATA
+          if (selectedYearRange) {
+            const filteredData = data.result.filter((player) => player.draft_year >= selectedYearRange && player.draft_year <= (parseInt(selectedYearRange, 10) + 9));
+            setProcData(filteredData);
+          } else {
+            setProcData(data.result);
+          }
         }
       })
       .catch((error) => {
@@ -123,14 +130,16 @@ function TopPlayers() {
       </FormControl>
 
       {loading ? (
-        <CircularProgress style={{ marginTop: "1rem" }} />
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+          <CircularProgress style={{ marginTop: "1rem" }} />
+        </div>
       ) : (
         <Grid container spacing={3} style={{ marginTop: "1rem" }}>
           <Grid item xs={12} sm={6} style={{ textAlign: "left" }}>
             <Typography variant="h5" align="center" gutterBottom>
               Data from Proc API
             </Typography>
-            <TableContainer>
+            <TableContainer style={{ marginTop: "1rem" }}>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -235,7 +244,7 @@ function TopPlayers() {
             <Typography variant="h5" align="center" gutterBottom>
               Data from GraphQL API
             </Typography>
-          <TableContainer>
+            <TableContainer style={{ marginTop: "1rem" }}>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -337,14 +346,6 @@ function TopPlayers() {
             </TableContainer>
           </Grid>
         </Grid>
-      )}
-
-      {loading ? (
-        <CircularProgress style={{ marginTop: "1rem" }} />
-      ) : (
-        <TableContainer style={{ marginTop: "1rem" }}>
-          
-        </TableContainer>
       )}
     </Container>
   );

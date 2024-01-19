@@ -21,25 +21,28 @@ import {
 
 function TeamSeasonStats() {
   const [procData, setProcData] = useState(null);
-  const [selectedTeam, setSelectedTeam] = useState("");
-  const [availableTeams, setAvailableTeams] = useState([]);
-  const [selectedYearRange, setSelectedYearRange] = useState([0, 0]);
-  const [seasonYearRange, setSeasonYearRange] = useState([0, 0]);
+  const [graphqlData, setGraphqlData] = useState(null);
+
   const [orderBy, setOrderBy] = useState("");
   const [order, setOrder] = useState("asc");
+  const [availableTeams, setAvailableTeams] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState("");
+  const [availableYearRange, setAvailableYearRange] = useState([0, 0]);
+  const [selectedYearRange, setSelectedYearRange] = useState([0, 0]);
   const [loading, setLoading] = useState(true);
   const [loadedFilters, setLoadedFilters] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     setProcData(null);
+    setGraphqlData(null);
 
-    const apiUrl = `http://${process.env.NEXT_PUBLIC_API_PROC_URL}/api/teamSeasonStats`;
+    const apiUrlProc = `http://${process.env.NEXT_PUBLIC_API_PROC_URL}/api/teamSeasonStats`;
 
-    fetch(apiUrl)
+    fetch(apiUrlProc)
       .then((res) => res.json())
       .then((data) => {
-        console.log(`Fetched data from ${apiUrl}`);
+        console.log(`Fetched data from ${apiUrlProc}`);
         if (data.result && data.result.length > 0) {
           // LOADING FILTERS
           if (!loadedFilters) {
@@ -57,7 +60,7 @@ function TeamSeasonStats() {
             const minYear = Math.min(...seasonYears);
             const maxYear = Math.max(...seasonYears) + 1;
 
-            setSeasonYearRange([minYear, maxYear]);
+            setAvailableYearRange([minYear, maxYear]);
             setSelectedYearRange([minYear, maxYear]);
 
             const sortedTeams = [...teams].sort();
@@ -80,15 +83,16 @@ function TeamSeasonStats() {
           });
 
           setProcData(filteredData);
+          setGraphqlData(filteredData);
         }
       })
       .catch((error) => {
-        console.error(`Error fetching data from ${apiUrl}:`, error);
+        console.error(`Error fetching data from ${apiUrlProc}:`, error);
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedTeam, selectedYearRange, loadedFilters]);
+  }, [selectedTeam, selectedYearRange]);
 
   const handleSort = (column) => {
     const isAsc = orderBy === column && order === "asc";
@@ -96,7 +100,7 @@ function TeamSeasonStats() {
     setOrderBy(column);
   };
 
-  const sortedData = procData
+  const sortedProcData = procData
     ? [...procData].sort((a, b) => {
         if (orderBy === "total_pts") {
           const aPoints = parseInt(a.seasons[0][orderBy]);
@@ -124,10 +128,37 @@ function TeamSeasonStats() {
       })
     : null;
 
+    const sortedGraphqlData = graphqlData
+    ? [...graphqlData].sort((a, b) => {
+        if (orderBy === "total_pts") {
+          const aPoints = parseInt(a.seasons[0][orderBy]);
+          const bPoints = parseInt(b.seasons[0][orderBy]);
+          if (order === "asc") {
+            return aPoints - bPoints;
+          } else {
+            return bPoints - aPoints;
+          }
+        } else if (orderBy === "season") {
+          const aSeasonYear = a.seasons[0][orderBy] ? parseInt(a.seasons[0][orderBy].split("-")[0]) : 0;
+          const bSeasonYear = b.seasons[0][orderBy] ? parseInt(b.seasons[0][orderBy].split("-")[0]) : 0;
+          if (order === "asc") {
+            return aSeasonYear - bSeasonYear;
+          } else {
+            return bSeasonYear - aSeasonYear;
+          }
+        } else {
+          if (order === "asc") {
+            return a[orderBy]?.localeCompare(b[orderBy]) || 0;
+          } else {
+            return b[orderBy]?.localeCompare(a[orderBy]) || 0;
+          }
+        }
+      })
+    : null;
 
   return (
-    <Container maxWidth="md" style={{ marginTop: "2rem" }}>
-      <Typography variant="h4" gutterBottom>
+    <Container maxWidth="x1">
+      <Typography variant="h3" align="center" gutterBottom>
         Team Season Stats
       </Typography>
 
@@ -160,74 +191,139 @@ function TeamSeasonStats() {
           <Slider
             value={selectedYearRange}
             onChange={(_, newValue) => {
-              // Ensure the values are not the same before updating the state
               if (newValue[0] !== newValue[1]) {
                 setSelectedYearRange(newValue);
               }
             }}
             valueLabelDisplay="auto"
-            min={seasonYearRange[0]}
-            max={seasonYearRange[1]}
+            min={availableYearRange[0]}
+            max={availableYearRange[1]}
             step={1}
           />
         </Grid>
       </Grid>
 
       {loading ? (
-        <CircularProgress style={{ marginTop: "1rem" }} />
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+          <CircularProgress style={{ marginTop: "1rem" }} />
+        </div>
       ) : (
-        <TableContainer style={{ marginTop: "1rem" }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "team"}
-                    direction={orderBy === "team" ? order : "asc"}
-                    onClick={() => handleSort("team")}
-                  >
-                    Team
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "season"}
-                    direction={orderBy === "season" ? order : "asc"}
-                    onClick={() => handleSort("season")}
-                  >
-                    Season
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "total_pts"}
-                    direction={orderBy === "total_pts" ? order : "asc"}
-                    onClick={() => handleSort("total_pts")}
-                  >
-                    Total Points
-                  </TableSortLabel>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sortedData ? (
-                sortedData.map((team) =>
-                  team.seasons.map((season) => (
-                    <TableRow key={`${team.team}-${season.season}`}>
-                      <TableCell>{team.team}</TableCell>
-                      <TableCell>{season.season}</TableCell>
-                      <TableCell>{season.total_pts}</TableCell>
+        <Grid container spacing={3} style={{ marginTop: "1rem" }}>
+          <Grid item xs={12} sm={6} style={{ textAlign: "left" }}>
+            <Typography variant="h5" align="center" gutterBottom>
+              Data from Proc API
+            </Typography>
+            <TableContainer style={{ marginTop: "1rem" }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "team"}
+                        direction={orderBy === "team" ? order : "asc"}
+                        onClick={() => handleSort("team")}
+                      >
+                        Team
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "season"}
+                        direction={orderBy === "season" ? order : "asc"}
+                        onClick={() => handleSort("season")}
+                      >
+                        Season
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "total_pts"}
+                        direction={orderBy === "total_pts" ? order : "asc"}
+                        onClick={() => handleSort("total_pts")}
+                      >
+                        Total Points
+                      </TableSortLabel>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {sortedProcData ? (
+                    sortedProcData.map((team) =>
+                      team.seasons.map((season) => (
+                        <TableRow key={`${team.team}-${season.season}`}>
+                          <TableCell>{team.team}</TableCell>
+                          <TableCell>{season.season}</TableCell>
+                          <TableCell>{season.total_pts}</TableCell>
+                        </TableRow>
+                      ))
+                    )
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3}>No data available</TableCell>
                     </TableRow>
-                  ))
-                )
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={3}>No data available</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+          <Grid item xs={12} sm={6} style={{ textAlign: "center" }}>
+            <Typography variant="h5" align="center" gutterBottom>
+              Data from GraphQL API
+            </Typography>
+            <TableContainer style={{ marginTop: "1rem" }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "team"}
+                        direction={orderBy === "team" ? order : "asc"}
+                        onClick={() => handleSort("team")}
+                      >
+                        Team
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "season"}
+                        direction={orderBy === "season" ? order : "asc"}
+                        onClick={() => handleSort("season")}
+                      >
+                        Season
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "total_pts"}
+                        direction={orderBy === "total_pts" ? order : "asc"}
+                        onClick={() => handleSort("total_pts")}
+                      >
+                        Total Points
+                      </TableSortLabel>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {sortedGraphqlData ? (
+                    sortedGraphqlData.map((team) =>
+                      team.seasons.map((season) => (
+                        <TableRow key={`${team.team}-${season.season}`}>
+                          <TableCell>{team.team}</TableCell>
+                          <TableCell>{season.season}</TableCell>
+                          <TableCell>{season.total_pts}</TableCell>
+                        </TableRow>
+                      ))
+                    )
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3}>No data available</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+        </Grid>
       )}
     </Container>
   );
