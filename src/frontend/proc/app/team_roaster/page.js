@@ -17,14 +17,18 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Grid,
 } from "@mui/material";
 
 function TeamRoaster() {
   const [procData, setProcData] = useState(null);
-  const [selectedTeam, setSelectedTeam] = useState("");
+  const [graphqlData, setGraphqlData] = useState(null);
+
+  const [orderBy, setOrderBy] = useState("");
+  const [order, setOrder] = useState("asc");
   const [availableTeams, setAvailableTeams] = useState([]);
-  const [selectedSeason, setSelectedSeason] = useState("1996-97");
-  const [seasons] = useState([
+  const [selectedTeam, setSelectedTeam] = useState("");
+  const [availableSeasons] = useState([
     "1996-97",
     "1997-98",
     "1998-99",
@@ -53,29 +57,34 @@ function TeamRoaster() {
     "2021-22",
     "2022-23",
   ]);
-  const [orderBy, setOrderBy] = useState("");
-  const [order, setOrder] = useState("asc");
+  const [selectedSeason, setSelectedSeason] = useState("1996-97");
   const [loading, setLoading] = useState(true);
+  const [loadedFilters, setLoadedFilters] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     setProcData(null);
+    setGraphqlData(null);
 
-    const apiUrl = `http://localhost:20004/api/teamPlayers/${selectedSeason}`;
+    const apiUrlProc = `http://localhost:20004/api/teamPlayers/${selectedSeason}`;
 
-    fetch(apiUrl)
+    fetch(apiUrlProc)
       .then((res) => res.json())
       .then((data) => {
-        console.log(`Fetched data from ${apiUrl}`);
+        console.log(`Fetched data from ${apiUrlProc}`);
         if (data.result && data.result.length > 0) {
-          const teams = new Set();
-          data.result.forEach((item) => {
-            teams.add(item.team);
-          });
-          const sortedTeams = [...teams].sort();
+          // LOADING FILTERS
+          if (!loadedFilters) {
+            const teams = new Set();
+            data.result.forEach((item) => {
+              teams.add(item.team);
+            });
+            const sortedTeams = [...teams].sort();
 
-          setAvailableTeams(sortedTeams);
-
+            setAvailableTeams(sortedTeams);
+            setLoadedFilters(true);
+          }
+          // LOADING DATA
           if (selectedTeam) {
             const filteredData = data.result.filter((team) => team.team === selectedTeam);
             setProcData(filteredData);
@@ -85,7 +94,7 @@ function TeamRoaster() {
         }
       })
       .catch((error) => {
-        console.error(`Error fetching data from ${apiUrl}:`, error);
+        console.error(`Error fetching data from ${apiUrlProc}:`, error);
       })
       .finally(() => {
         setLoading(false);
@@ -99,22 +108,22 @@ function TeamRoaster() {
   };
 
   const handleNextSeason = () => {
-    const currentIndex = seasons.indexOf(selectedSeason);
-    const nextIndex = currentIndex < seasons.length - 1 ? currentIndex + 1 : 0;
-    setSelectedSeason(seasons[nextIndex]);
+    const currentIndex = availableSeasons.indexOf(selectedSeason);
+    const nextIndex = currentIndex < availableSeasons.length - 1 ? currentIndex + 1 : 0;
+    setSelectedSeason(availableSeasons[nextIndex]);
   };
 
   const handlePrevSeason = () => {
-    const currentIndex = seasons.indexOf(selectedSeason);
-    const prevIndex = currentIndex > 0 ? currentIndex - 1 : seasons.length - 1;
-    setSelectedSeason(seasons[prevIndex]);
+    const currentIndex = availableSeasons.indexOf(selectedSeason);
+    const prevIndex = currentIndex > 0 ? currentIndex - 1 : availableSeasons.length - 1;
+    setSelectedSeason(availableSeasons[prevIndex]);
   };
 
   const handleTeamChange = (event) => {
     setSelectedTeam(event.target.value);
   };
 
-  const sortedData = procData
+  const sortedProcData = procData
     ? [...procData].sort((a, b) => {
         if (order === "asc") {
           return a[orderBy] > b[orderBy] ? 1 : -1;
@@ -124,13 +133,23 @@ function TeamRoaster() {
       })
     : null;
 
+  const sortedGraphqlData = graphqlData
+  ? [...graphqlData].sort((a, b) => {
+      if (order === "asc") {
+        return a[orderBy] > b[orderBy] ? 1 : -1;
+      } else {
+        return a[orderBy] < b[orderBy] ? 1 : -1;
+      }
+    })
+  : null;
+
   return (
-    <Container maxWidth="md" style={{ marginTop: "2rem" }}>
-      <Typography variant="h4" gutterBottom>
+    <Container maxWidth="x1">
+      <Typography variant="h3" align="center" gutterBottom>
         Team Roster
       </Typography>
 
-      {seasons.length > 0 && (
+      {availableSeasons.length > 0 && (
         <>
           <ButtonGroup style={{ marginBottom: "1rem" }}>
             <Button onClick={handlePrevSeason}>Previous Season</Button>
@@ -161,60 +180,126 @@ function TeamRoaster() {
       </FormControl>
 
       {loading ? (
-        <CircularProgress style={{ marginTop: "1rem" }} />
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+          <CircularProgress style={{ marginTop: "1rem" }} />
+        </div>
       ) : (
-        <TableContainer style={{ marginTop: "1rem" }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "team"}
-                    direction={orderBy === "team" ? order : "asc"}
-                    onClick={() => handleSort("team")}
-                  >
-                    Team
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "player"}
-                    direction={orderBy === "player" ? order : "asc"}
-                    onClick={() => handleSort("player")}
-                  >
-                    Player
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "age"}
-                    direction={orderBy === "age" ? order : "asc"}
-                    onClick={() => handleSort("age")}
-                  >
-                    Age
-                  </TableSortLabel>
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sortedData ? (
-                sortedData.map((team) =>
-                  team.players.map((player) => (
-                    <TableRow key={`${team.team}-${player.name}`}>
-                      <TableCell>{team.team}</TableCell>
-                      <TableCell>{player.name}</TableCell>
-                      <TableCell>{player.age}</TableCell>
+        <Grid container spacing={3} style={{ marginTop: "1rem" }}>
+          <Grid item xs={12} sm={6} style={{ textAlign: "left" }}>
+            <Typography variant="h5" align="center" gutterBottom>
+              Data from Proc API
+            </Typography>
+            <TableContainer style={{ marginTop: "1rem" }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "team"}
+                        direction={orderBy === "team" ? order : "asc"}
+                        onClick={() => handleSort("team")}
+                      >
+                        Team
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "player"}
+                        direction={orderBy === "player" ? order : "asc"}
+                        onClick={() => handleSort("player")}
+                      >
+                        Player
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "age"}
+                        direction={orderBy === "age" ? order : "asc"}
+                        onClick={() => handleSort("age")}
+                      >
+                        Age
+                      </TableSortLabel>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {sortedProcData ? (
+                    sortedProcData.map((team) =>
+                      team.players.map((player) => (
+                        <TableRow key={`${team.team}-${player.name}`}>
+                          <TableCell>{team.team}</TableCell>
+                          <TableCell>{player.name}</TableCell>
+                          <TableCell>{player.age}</TableCell>
+                        </TableRow>
+                      ))
+                    )
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3}>No data available</TableCell>
                     </TableRow>
-                  ))
-                )
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={3}>No data available</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+          <Grid item xs={12} sm={6} style={{ textAlign: "left" }}>
+            <Typography variant="h5" align="center" gutterBottom>
+              Data from GraphQL API
+            </Typography>
+            <TableContainer style={{ marginTop: "1rem" }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "team"}
+                        direction={orderBy === "team" ? order : "asc"}
+                        onClick={() => handleSort("team")}
+                      >
+                        Team
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "player"}
+                        direction={orderBy === "player" ? order : "asc"}
+                        onClick={() => handleSort("player")}
+                      >
+                        Player
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "age"}
+                        direction={orderBy === "age" ? order : "asc"}
+                        onClick={() => handleSort("age")}
+                      >
+                        Age
+                      </TableSortLabel>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {sortedGraphqlData ? (
+                    sortedGraphqlData.map((team) =>
+                      team.players.map((player) => (
+                        <TableRow key={`${team.team}-${player.name}`}>
+                          <TableCell>{team.team}</TableCell>
+                          <TableCell>{player.name}</TableCell>
+                          <TableCell>{player.age}</TableCell>
+                        </TableRow>
+                      ))
+                    )
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3}>No data available</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+        </Grid>
       )}
     </Container>
   );

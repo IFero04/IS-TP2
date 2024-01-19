@@ -15,12 +15,14 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Grid,
 } from "@mui/material";
 
 
 function PlayerStats() {
   const [procData, setProcData] = useState(null);
-  const [selectedRange, setSelectedRange] = useState("");
+  const [graphqlData, setGraphqlData] = useState(null);
+
   const [availableGroups, setAvailableGroups] = useState([
     "A - D",
     "E - H",
@@ -30,6 +32,7 @@ function PlayerStats() {
     "U - X",
     "Y - Z",
   ]);
+  const [selectedRange, setSelectedRange] = useState("");
   const [orderBy, setOrderBy] = useState("player");
   const [order, setOrder] = useState("asc");
   const [loading, setLoading] = useState(true);
@@ -37,6 +40,7 @@ function PlayerStats() {
   useEffect(() => {
     setLoading(true);
     setProcData(null);
+    setGraphqlData(null);
 
     const apiUrl = "http://localhost:20004/api/avgStatsPlayers";
 
@@ -45,6 +49,7 @@ function PlayerStats() {
       .then((data) => {
         console.log(`Fetched data from ${apiUrl}`);
         if (data.result && data.result.length > 0) {
+          // LOADING DATA
           const players_data = data.result.map((item) => {
             return {
               player: item.player,
@@ -87,7 +92,7 @@ function PlayerStats() {
     setOrderBy(column);
   };
 
-  const sortedData = procData
+  const sortedProcData = procData
     ? [...procData].sort((a, b) => {
         if (order === "asc") {
           return a[orderBy] > b[orderBy] ? 1 : -1;
@@ -97,9 +102,19 @@ function PlayerStats() {
       })
     : null;
 
+  const sortedGraphqlData = graphqlData
+  ? [...graphqlData].sort((a, b) => {
+      if (order === "asc") {
+        return a[orderBy] > b[orderBy] ? 1 : -1;
+      } else {
+        return a[orderBy] < b[orderBy] ? 1 : -1;
+      }
+    })
+  : null;
+
   return (
-    <Container maxWidth="md" style={{ marginTop: "2rem" }}>
-      <Typography variant="h4" gutterBottom>
+    <Container maxWidth="x1">
+      <Typography variant="h4" align="center" gutterBottom>
         Player Stats
       </Typography>
 
@@ -125,80 +140,166 @@ function PlayerStats() {
       </FormControl>
 
       {loading ? (
-        <CircularProgress style={{ marginTop: "1rem" }} />
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+          <CircularProgress style={{ marginTop: "1rem" }} />
+        </div>
       ) : (
-        <TableContainer style={{ marginTop: "1rem" }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "player"}
-                    direction={orderBy === "player" ? order : "asc"}
-                    onClick={() => handleSort("player")}
-                  >
-                    Player
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "gp"}
-                    direction={orderBy === "gp" ? order : "asc"}
-                    onClick={() => handleSort("gp")}
-                  >
-                    Games Played
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "pts"}
-                    direction={orderBy === "pts" ? order : "asc"}
-                    onClick={() => handleSort("pts")}
-                  >
-                    Points
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "reb"}
-                    direction={orderBy === "reb" ? order : "asc"}
-                    onClick={() => handleSort("reb")}
-                  >
-                    Rebounds
-                  </TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === "ast"}
-                    direction={orderBy === "ast" ? order : "asc"}
-                    onClick={() => handleSort("ast")}
-                  >
-                    Assists
-                  </TableSortLabel>
-                </TableCell>
-                {/* Include other headers for additional stats */}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {sortedData ? (
-                sortedData.map((player) => (
-                  <TableRow key={player.player}>
-                    <TableCell>{player.player}</TableCell>
-                    <TableCell>{player.gp}</TableCell>
-                    <TableCell>{player.pts}</TableCell>
-                    <TableCell>{player.reb}</TableCell>
-                    <TableCell>{player.ast}</TableCell>
-                    {/* Include other cells for additional stats */}
+        <Grid container spacing={3} style={{ marginTop: "1rem" }}>
+          <Grid item xs={12} sm={6} style={{ textAlign: "left" }}>
+            <Typography variant="h5" align="center" gutterBottom>
+              Data from Proc API
+            </Typography>
+            <TableContainer style={{ marginTop: "1rem" }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "player"}
+                        direction={orderBy === "player" ? order : "asc"}
+                        onClick={() => handleSort("player")}
+                      >
+                        Player
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "gp"}
+                        direction={orderBy === "gp" ? order : "asc"}
+                        onClick={() => handleSort("gp")}
+                      >
+                        Games Played
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "pts"}
+                        direction={orderBy === "pts" ? order : "asc"}
+                        onClick={() => handleSort("pts")}
+                      >
+                        Points
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "reb"}
+                        direction={orderBy === "reb" ? order : "asc"}
+                        onClick={() => handleSort("reb")}
+                      >
+                        Rebounds
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "ast"}
+                        direction={orderBy === "ast" ? order : "asc"}
+                        onClick={() => handleSort("ast")}
+                      >
+                        Assists
+                      </TableSortLabel>
+                    </TableCell>
+                    {/* Include other headers for additional stats */}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5}>No data available</TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {sortedProcData ? (
+                    sortedProcData.map((player) => (
+                      <TableRow key={player.player}>
+                        <TableCell>{player.player}</TableCell>
+                        <TableCell>{player.gp}</TableCell>
+                        <TableCell>{player.pts}</TableCell>
+                        <TableCell>{player.reb}</TableCell>
+                        <TableCell>{player.ast}</TableCell>
+                        {/* Include other cells for additional stats */}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5}>No data available</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+          <Grid item xs={12} sm={6} style={{ textAlign: "left" }}>
+            <Typography variant="h5" align="center" gutterBottom>
+              Data from GraphQL API
+            </Typography>
+            <TableContainer style={{ marginTop: "1rem" }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "player"}
+                        direction={orderBy === "player" ? order : "asc"}
+                        onClick={() => handleSort("player")}
+                      >
+                        Player
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "gp"}
+                        direction={orderBy === "gp" ? order : "asc"}
+                        onClick={() => handleSort("gp")}
+                      >
+                        Games Played
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "pts"}
+                        direction={orderBy === "pts" ? order : "asc"}
+                        onClick={() => handleSort("pts")}
+                      >
+                        Points
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "reb"}
+                        direction={orderBy === "reb" ? order : "asc"}
+                        onClick={() => handleSort("reb")}
+                      >
+                        Rebounds
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell>
+                      <TableSortLabel
+                        active={orderBy === "ast"}
+                        direction={orderBy === "ast" ? order : "asc"}
+                        onClick={() => handleSort("ast")}
+                      >
+                        Assists
+                      </TableSortLabel>
+                    </TableCell>
+                    {/* Include other headers for additional stats */}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {sortedGraphqlData ? (
+                    sortedGraphqlData.map((player) => (
+                      <TableRow key={player.player}>
+                        <TableCell>{player.player}</TableCell>
+                        <TableCell>{player.gp}</TableCell>
+                        <TableCell>{player.pts}</TableCell>
+                        <TableCell>{player.reb}</TableCell>
+                        <TableCell>{player.ast}</TableCell>
+                        {/* Include other cells for additional stats */}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5}>No data available</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Grid>
+        </Grid>
       )}
     </Container>
   );
