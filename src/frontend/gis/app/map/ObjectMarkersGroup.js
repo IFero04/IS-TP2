@@ -54,14 +54,10 @@ const DEMO_DATA = [
 ];
 
 function ObjectMarkersGroup() {
-
     const map = useMap();
     const [geom, setGeom] = useState([...DEMO_DATA]);
     const [bounds, setBounds] = useState(map.getBounds());
 
-    /**
-     * Setup the event to update the bounds automatically
-     */
     useEffect(() => {
         const cb = () => {
             setBounds(map.getBounds());
@@ -73,10 +69,25 @@ function ObjectMarkersGroup() {
         }
     }, []);
 
-    /* Updates the data for the current bounds */
     useEffect(() => {
+        setGeom([]);
         console.log(`> getting data for bounds`, bounds);
-        setGeom(DEMO_DATA);
+
+        const apiUrl = `http://localhost:20002/api/tile?neLat=${bounds._northEast.lat}&neLng=${bounds._northEast.lng}&swLat=${bounds._southWest.lat}&swLng=${bounds._southWest.lng}`;
+        
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log(`> fetched data from`, apiUrl);
+                if (data.result && data.result.length > 0) {
+                    console.log(`> data`, data.result);
+
+                    setGeom(data.result);
+                } 
+            })
+            .catch(error => {
+                console.error(`> error getting data`, error);
+            });
     }, [bounds])
 
     return (

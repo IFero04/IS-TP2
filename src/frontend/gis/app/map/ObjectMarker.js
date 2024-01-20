@@ -1,21 +1,24 @@
 "use client"
-import {Avatar, List, ListItem, ListItemIcon, ListItemText} from "@mui/material";
-import FlagIcon from '@mui/icons-material/Flag';
-import PictureInPictureAltIcon from '@mui/icons-material/PictureInPictureAlt';
-import ContactsIcon from '@mui/icons-material/Contacts';
 import React from "react";
 import {Marker, Popup} from 'react-leaflet';
 import {icon as leafletIcon, point} from "leaflet";
 
+import {Avatar, List, ListItem, ListItemIcon, ListItemText} from "@mui/material";
+import {Cake, Flag, Height, FitnessCenter, SportsBasketball} from "@mui/icons-material";
+
+
 const LIST_PROPERTIES = [
-    {"key": "country", label: "Country", Icon: FlagIcon},
-    {"key": "number", label: "Shirt Number", Icon: ContactsIcon},
-    {"key": "position", label: "Position", Icon: PictureInPictureAltIcon}
+    {"key": "age", label: "Age", Icon: Cake},
+    {"key": "country", label: "Country", Icon: Flag},
+    {"key": "height", label: "Height", Icon: Height},
+    {"key": "weight", label: "Weight", Icon: FitnessCenter},
+    {"key": "draft_year", label: "Draft Year", Icon: SportsBasketball}
 ];
 
 export function ObjectMarker({geoJSON}) {
-    const properties = geoJSON?.properties
-    const {id, imgUrl, name} = properties;
+    const properties = geoJSON?.properties;
+    const imgUrl = "https://cdn-icons-png.flaticon.com/512/805/805401.png";
+    const {id, name} = properties;
     const coordinates = geoJSON?.geometry?.coordinates;
 
     return (

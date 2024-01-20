@@ -8,7 +8,7 @@ function Page() {
         <MapContainer style={{width: "100%", height: "calc(100vh - 64px)"}}
                       center={[41.69462, -8.84679]}
                       zoom={17}
-                      scrollWheelZoom={false}
+                      scrollWheelZoom={true}
         >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
