@@ -46,33 +46,37 @@ export default function PlayersPage() {
           return data.result || [];
         };
 
-        const [collegesMap, countriesMap, playersData] = await Promise.all([
-          fetchDataForType("colleges"),
-          fetchDataForType("countries"),
+        const [playersMap, teamsMap, entriesData] = await Promise.all([
           fetchDataForType("players"),
+          fetchDataForType("teams"),
+          fetchDataForType("entries"),
         ]);
 
-        const collegesMapById = Object.fromEntries(collegesMap.map((college) => [college.id, college]));
-        const countriesMapById = Object.fromEntries(countriesMap.map((country) => [country.id, country]));
+        const playersMapById = Object.fromEntries(playersMap.map((player) => [player.id, player]));
+        const teamsMapById = Object.fromEntries(teamsMap.map((team) => [team.id, team]));
 
-        const players = playersData.map((player) => ({
-          id: player.id,
-          name: player.name,
-          age: player.age,
-          height: player.height,
-          weight: player.weight,
-          draftyear: player.draftyear,
-          draftround: player.draftround,
-          draftnumber: player.draftnumber,
-          college: collegesMapById[player.college_ref]?.name || "N/A",
-          country: countriesMapById[player.country_ref]?.name || "N/A",
+        const entries = entriesData.map((entry) => ({
+          id: entry.id,
+          season: entry.season,
+          gp: entry.gp,
+          pts: entry.pts,
+          reb: entry.reb,
+          ast: entry.ast,
+          net_rating: entry.net_rating,
+          oreb_pct: entry.oreb_pct,
+          dreb_pct: entry.dreb_pct,
+          usg_pct: entry.usg_pct,
+          ts_pct: entry.ts_pct,
+          ast_pct: entry.ast_pct,
+          player: playersMapById[entry.player_ref]?.name || "N/A",
+          team: teamsMapById[entry.team_ref]?.abbreviation || "N/A",
         }));
 
-        setMaxDataSize(players.length);
+        setMaxDataSize(entries.length);
 
         const startIndex = (page - 1) * PAGE_SIZE;
         const endIndex = startIndex + PAGE_SIZE;
-        setData(players.slice(startIndex, endIndex));
+        setData(entries.slice(startIndex, endIndex));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -83,22 +87,26 @@ export default function PlayersPage() {
 
     return (
         <>
-            <h1 sx={{fontSize: "100px"}}>Players</h1>
+            <h1 sx={{fontSize: "100px"}}>Entries</h1>
 
             <TableContainer component={Paper}>
                 <Table sx={{minWidth: 650}} aria-label="simple table">
                     <TableHead>
                         <TableRow sx={{backgroundColor: "lightgray"}}>
                             <TableCell component="th" width={"1px"} align="center">ID</TableCell>
-                            <TableCell>Player Name</TableCell>
-                            <TableCell align="center">Age</TableCell>
-                            <TableCell align="center">Height</TableCell>
-                            <TableCell align="center">Weight</TableCell>
-                            <TableCell align="center">Draft Year</TableCell>
-                            <TableCell align="center">Draft Round</TableCell>
-                            <TableCell align="center">Draft Number</TableCell>
-                            <TableCell align="center">College</TableCell>
-                            <TableCell align="center">Country</TableCell>
+                            <TableCell align="center">Season</TableCell>
+                            <TableCell align="center">Player</TableCell>
+                            <TableCell align="center">Team</TableCell>
+                            <TableCell align="center">GP</TableCell>
+                            <TableCell align="center">PTS</TableCell>
+                            <TableCell align="center">REB</TableCell>
+                            <TableCell align="center">AST</TableCell>
+                            <TableCell align="center">Net Rating</TableCell>
+                            <TableCell align="center">Oreb Pct</TableCell>
+                            <TableCell align="center">Dreb Pct</TableCell>
+                            <TableCell align="center">Usg Pct</TableCell>
+                            <TableCell align="center">Ts Pct</TableCell>
+                            <TableCell align="center">Ast Pct</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -111,32 +119,44 @@ export default function PlayersPage() {
                                         <TableCell component="td" align="center">
                                             {row.id}
                                         </TableCell>
-                                        <TableCell component="td" scope="row">
-                                            {row.name}
+                                        <TableCell component="td" align="center"  scope="row">
+                                            {row.season}
                                         </TableCell>
                                         <TableCell component="td" align="center" scope="row">
-                                            {row.age}
+                                            {row.player}
                                         </TableCell>
                                         <TableCell component="td" align="center" scope="row">
-                                            {row.height}
+                                            {row.team}
                                         </TableCell>
                                         <TableCell component="td" align="center" scope="row">
-                                            {row.weight}
+                                            {row.gp}
                                         </TableCell>
                                         <TableCell component="td" align="center" scope="row">
-                                            {row.draftyear}
+                                            {row.pts}
                                         </TableCell>
                                         <TableCell component="td" align="center" scope="row">
-                                            {row.draftround}
+                                            {row.reb}
                                         </TableCell>
                                         <TableCell component="td" align="center" scope="row">
-                                            {row.draftnumber}
+                                            {row.ast}
                                         </TableCell>
                                         <TableCell component="td" align="center" scope="row">
-                                            {row.college}
+                                            {row.net_rating}
                                         </TableCell>
                                         <TableCell component="td" align="center" scope="row">
-                                            {row.country}
+                                            {row.oreb_pct}
+                                        </TableCell>
+                                        <TableCell component="td" align="center" scope="row">
+                                            {row.dreb_pct}
+                                        </TableCell>
+                                        <TableCell component="td" align="center" scope="row">
+                                            {row.usg_pct}
+                                        </TableCell>
+                                        <TableCell component="td" align="center" scope="row">
+                                            {row.ts_pct}
+                                        </TableCell>
+                                        <TableCell component="td" align="center" scope="row">
+                                            {row.ast_pct}
                                         </TableCell>
                                     </TableRow>
                                 ))

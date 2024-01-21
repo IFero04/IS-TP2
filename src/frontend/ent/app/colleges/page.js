@@ -14,7 +14,7 @@ import {
 import {useSearchParams, useRouter, usePathname} from 'next/navigation';
 
 
-export default function TeamsPage({pagea}) {
+export default function CollegesPage({pagea}) {
 
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -41,7 +41,7 @@ export default function TeamsPage({pagea}) {
         setTimeout(() => {
             console.log(`fetching from ${process.env.NEXT_PUBLIC_API_ENTITIES_URL}`)
             
-            const apiUrl = `http://${process.env.NEXT_PUBLIC_API_ENTITIES_URL}/api/teams`;
+            const apiUrl = `http://${process.env.NEXT_PUBLIC_API_ENTITIES_URL}/api/colleges`;
 
             fetch(apiUrl)
                 .then(response => response.json())
@@ -60,14 +60,14 @@ export default function TeamsPage({pagea}) {
 
     return (
         <>
-            <h1 sx={{fontSize: "100px"}}>Teams</h1>
+            <h1 sx={{fontSize: "100px"}}>Colleges</h1>
 
             <TableContainer component={Paper}>
                 <Table sx={{minWidth: 650}} aria-label="simple table">
                     <TableHead>
                         <TableRow sx={{backgroundColor: "lightgray"}}>
                             <TableCell component="th" width={"1px"} align="center">ID</TableCell>
-                            <TableCell>Team Abbreviation</TableCell>
+                            <TableCell>Country Name</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -81,7 +81,7 @@ export default function TeamsPage({pagea}) {
                                             {row.id}
                                         </TableCell>
                                         <TableCell component="td" scope="row">
-                                            {row.abbreviation}
+                                            {row.name}
                                         </TableCell>
                                     </TableRow>
                                 ))
