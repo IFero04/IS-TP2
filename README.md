@@ -117,5 +117,3 @@ Generic volume that can be used for any purpose, to help out developing the othe
 ___
 #### _Informatics Engineering @ipvc/estg, 2023-2024_ ####
 ###### _Professors: Jorge Ribeiro and Luís Teófilo_ ######
-
-Teste
